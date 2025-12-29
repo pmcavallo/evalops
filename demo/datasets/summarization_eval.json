@@ -1,0 +1,81 @@
+{
+  "name": "summarization_eval",
+  "description": "Text summarization quality evaluation dataset",
+  "cases": [
+    {
+      "id": "sum_001",
+      "input": "The Amazon rainforest, often referred to as the 'lungs of the Earth', produces approximately 20% of the world's oxygen. Spanning nine countries in South America, it is home to over 400 billion individual trees representing more than 16,000 species. The rainforest is currently facing significant threats from deforestation, with approximately 17% of the forest lost in the last 50 years.",
+      "expected": "The Amazon rainforest produces 20% of Earth's oxygen and contains over 400 billion trees across nine South American countries, but has lost 17% of its coverage to deforestation in 50 years."
+    },
+    {
+      "id": "sum_002",
+      "input": "Artificial intelligence has transformed healthcare by enabling faster diagnosis of diseases. Machine learning algorithms can now analyze medical images with accuracy comparable to experienced radiologists. These systems can detect early signs of cancer, diabetic retinopathy, and other conditions, potentially saving millions of lives through early intervention.",
+      "expected": "AI is revolutionizing healthcare through machine learning algorithms that analyze medical images as accurately as radiologists, enabling early detection of diseases like cancer."
+    },
+    {
+      "id": "sum_003",
+      "input": "The Great Barrier Reef is the world's largest coral reef system, stretching over 2,300 kilometers along the Australian coast. It consists of nearly 3,000 individual reef systems and supports an incredible diversity of marine life. Climate change and ocean acidification pose serious threats to its survival, with bleaching events becoming more frequent.",
+      "expected": "The Great Barrier Reef spans 2,300km along Australia with nearly 3,000 reef systems, but faces threats from climate change and increasing bleaching events."
+    },
+    {
+      "id": "sum_004",
+      "input": "Electric vehicles are becoming increasingly popular as consumers seek to reduce their carbon footprint. Global EV sales surpassed 10 million units in 2022, representing a 55% increase from the previous year. Major automakers have committed to phasing out internal combustion engines, with many targeting 2035 for full EV transitions.",
+      "expected": "Electric vehicle sales exceeded 10 million in 2022 (up 55%), as automakers plan to phase out combustion engines by 2035 to meet consumer demand for lower emissions."
+    },
+    {
+      "id": "sum_005",
+      "input": "The human brain contains approximately 86 billion neurons, each connected to thousands of other neurons through synapses. This complex network enables consciousness, memory, and all cognitive functions. Recent neuroscience research has revealed that the brain remains plastic throughout life, capable of forming new neural connections even in old age.",
+      "expected": "The human brain has 86 billion interconnected neurons enabling cognition, and recent research shows it maintains plasticity and can form new connections throughout life."
+    },
+    {
+      "id": "sum_006",
+      "input": "Remote work has fundamentally changed how businesses operate. A Stanford study found that remote workers are 13% more productive than their office-based counterparts. Companies are now adopting hybrid models, allowing employees flexibility while maintaining some in-person collaboration. This shift has significant implications for commercial real estate and urban planning.",
+      "expected": "Remote work increases productivity by 13% according to Stanford research, leading companies to adopt hybrid models that impact commercial real estate and urban planning."
+    },
+    {
+      "id": "sum_007",
+      "input": "Quantum computers leverage quantum mechanical phenomena to perform calculations that would be impossible for classical computers. Google's Sycamore processor achieved quantum supremacy in 2019 by completing a calculation in 200 seconds that would take traditional supercomputers 10,000 years. Practical applications include cryptography, drug discovery, and financial modeling.",
+      "expected": "Quantum computers use quantum mechanics for impossible-for-classical calculations, with Google achieving quantum supremacy in 2019, enabling advances in cryptography and drug discovery."
+    },
+    {
+      "id": "sum_008",
+      "input": "The global food system is responsible for approximately one-third of greenhouse gas emissions. Cattle farming alone produces more emissions than all transportation combined. Sustainable agriculture practices, including vertical farming and lab-grown meat, are emerging as potential solutions to feed growing populations while reducing environmental impact.",
+      "expected": "The food system causes one-third of emissions with cattle farming exceeding transportation, driving interest in sustainable solutions like vertical farming and lab-grown meat."
+    },
+    {
+      "id": "sum_009",
+      "input": "Space tourism is becoming reality with companies like SpaceX, Blue Origin, and Virgin Galactic offering suborbital flights. Ticket prices have dropped from $55 million for orbital flights to around $450,000 for suborbital experiences. The industry is expected to grow to $1.7 billion by 2027 as technology advances and costs decrease.",
+      "expected": "Space tourism is emerging with SpaceX, Blue Origin, and Virgin Galactic offering flights from $450,000 for suborbital trips, with the industry projected to reach $1.7 billion by 2027."
+    },
+    {
+      "id": "sum_010",
+      "input": "Renewable energy sources now account for 30% of global electricity generation. Solar power costs have dropped by 89% since 2010, making it the cheapest form of electricity in history. Wind and solar combined are expected to provide 50% of global power by 2050, significantly reducing dependence on fossil fuels.",
+      "expected": "Renewables generate 30% of global electricity, with solar costs down 89% since 2010, and wind and solar expected to provide 50% of power by 2050."
+    },
+    {
+      "id": "sum_011",
+      "input": "The ocean absorbs approximately 30% of the carbon dioxide produced by humans. This absorption is causing ocean acidification, which threatens marine ecosystems. Coral reefs and shellfish are particularly vulnerable as the changing pH makes it difficult for them to build their calcium carbonate structures.",
+      "expected": "Oceans absorb 30% of human CO2 emissions, causing acidification that threatens marine life, especially coral reefs and shellfish that need calcium carbonate."
+    },
+    {
+      "id": "sum_012",
+      "input": "Cryptocurrency adoption has grown rapidly despite market volatility. Bitcoin reached a market cap of over $1 trillion in 2021. Central banks are now exploring digital currencies, with China's digital yuan already in pilot programs. Blockchain technology underlying crypto has applications beyond finance in supply chain and identity verification.",
+      "expected": "Cryptocurrency has grown to over $1 trillion market cap despite volatility, prompting central bank digital currency exploration, while blockchain expands into supply chain and identity."
+    },
+    {
+      "id": "sum_013",
+      "input": "Sleep deprivation affects an estimated one-third of American adults. Chronic lack of sleep increases risks of heart disease, diabetes, and cognitive decline. Studies show that even moderate sleep loss impairs decision-making and reaction time comparable to alcohol intoxication. Experts recommend 7-9 hours of sleep for optimal health.",
+      "expected": "One-third of American adults are sleep deprived, increasing risks of heart disease and cognitive decline, with moderate sleep loss impairing function like alcohol intoxication."
+    },
+    {
+      "id": "sum_014",
+      "input": "Urban vertical farming uses controlled environments to grow crops in stacked layers. These farms use 95% less water than traditional agriculture and can produce year-round regardless of weather. While currently expensive, costs are decreasing as technology improves. Singapore aims to produce 30% of its food through vertical farming by 2030.",
+      "expected": "Vertical farming grows crops in stacked layers using 95% less water year-round, with Singapore targeting 30% of food production from vertical farms by 2030."
+    },
+    {
+      "id": "sum_015",
+      "input": "The global mental health crisis has been exacerbated by the pandemic. WHO reports a 25% increase in anxiety and depression worldwide. Digital mental health solutions, including therapy apps and AI chatbots, have seen massive growth. However, experts warn these tools should complement, not replace, professional mental health care.",
+      "expected": "The pandemic increased global anxiety and depression by 25%, driving growth in digital mental health tools that experts say should complement professional care."
+    }
+  ]
+}

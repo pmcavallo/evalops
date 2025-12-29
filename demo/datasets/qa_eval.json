@@ -1,0 +1,106 @@
+{
+  "name": "qa_eval",
+  "description": "Question-answering accuracy evaluation dataset",
+  "cases": [
+    {
+      "id": "qa_001",
+      "input": "What is the capital of France?",
+      "expected": "Paris"
+    },
+    {
+      "id": "qa_002",
+      "input": "Who wrote Romeo and Juliet?",
+      "expected": "William Shakespeare"
+    },
+    {
+      "id": "qa_003",
+      "input": "What is the chemical symbol for water?",
+      "expected": "H2O"
+    },
+    {
+      "id": "qa_004",
+      "input": "In what year did World War II end?",
+      "expected": "1945"
+    },
+    {
+      "id": "qa_005",
+      "input": "What is the largest planet in our solar system?",
+      "expected": "Jupiter"
+    },
+    {
+      "id": "qa_006",
+      "input": "Who painted the Mona Lisa?",
+      "expected": "Leonardo da Vinci"
+    },
+    {
+      "id": "qa_007",
+      "input": "What is the speed of light in meters per second?",
+      "expected": "299792458"
+    },
+    {
+      "id": "qa_008",
+      "input": "What is the capital of Japan?",
+      "expected": "Tokyo"
+    },
+    {
+      "id": "qa_009",
+      "input": "Who discovered penicillin?",
+      "expected": "Alexander Fleming"
+    },
+    {
+      "id": "qa_010",
+      "input": "What is the square root of 144?",
+      "expected": "12"
+    },
+    {
+      "id": "qa_011",
+      "input": "What element has the atomic number 79?",
+      "expected": "Gold"
+    },
+    {
+      "id": "qa_012",
+      "input": "Who was the first person to walk on the moon?",
+      "expected": "Neil Armstrong"
+    },
+    {
+      "id": "qa_013",
+      "input": "What is the largest ocean on Earth?",
+      "expected": "Pacific Ocean"
+    },
+    {
+      "id": "qa_014",
+      "input": "In what year was the Declaration of Independence signed?",
+      "expected": "1776"
+    },
+    {
+      "id": "qa_015",
+      "input": "What is the boiling point of water in Celsius?",
+      "expected": "100"
+    },
+    {
+      "id": "qa_016",
+      "input": "Who developed the theory of relativity?",
+      "expected": "Albert Einstein"
+    },
+    {
+      "id": "qa_017",
+      "input": "What is the capital of Australia?",
+      "expected": "Canberra"
+    },
+    {
+      "id": "qa_018",
+      "input": "How many chromosomes do humans have?",
+      "expected": "46"
+    },
+    {
+      "id": "qa_019",
+      "input": "What is the hardest natural substance on Earth?",
+      "expected": "Diamond"
+    },
+    {
+      "id": "qa_020",
+      "input": "Who wrote 'A Brief History of Time'?",
+      "expected": "Stephen Hawking"
+    }
+  ]
+}

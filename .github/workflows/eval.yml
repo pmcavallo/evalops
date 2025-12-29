@@ -1,0 +1,110 @@
+name: Evaluation Regression Tests
+
+on:
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install -r requirements.txt
+
+      - name: Run regression tests
+        id: regression
+        run: |
+          python -m evalops.cli.regression \
+            --dataset tests/fixtures/regression_dataset.json \
+            --baseline tests/fixtures/baseline.json \
+            --output-format github \
+            --threshold exact_match:0.85 \
+            --threshold semantic_similarity:0.75 \
+            2>&1 | tee regression_output.txt
+
+          # Capture exit code
+          EXIT_CODE=${PIPESTATUS[0]}
+
+          # Save summary for PR comment
+          if [ -f regression_summary.md ]; then
+            echo "SUMMARY<<EOF" >> $GITHUB_OUTPUT
+            cat regression_summary.md >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+
+          exit $EXIT_CODE
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Comment on PR
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let body = '## Evaluation Regression Test Results\n\n';
+
+            // Try to read the regression summary
+            try {
+              if (fs.existsSync('regression_summary.md')) {
+                body += fs.readFileSync('regression_summary.md', 'utf8');
+              } else if (fs.existsSync('regression_output.txt')) {
+                const output = fs.readFileSync('regression_output.txt', 'utf8');
+                body += '```\n' + output.slice(-2000) + '\n```';
+              } else {
+                body += '${{ steps.regression.outcome == 'success' && '✅ All regression checks passed!' || '❌ Regression detected - see workflow logs for details.' }}';
+              }
+            } catch (e) {
+              body += 'Unable to read regression results: ' + e.message;
+            }
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' &&
+              c.body.includes('Evaluation Regression Test Results')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+
+      - name: Check regression result
+        if: steps.regression.outcome == 'failure'
+        run: |
+          echo "Regression tests failed!"
+          exit 1

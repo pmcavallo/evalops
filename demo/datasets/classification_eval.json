@@ -1,0 +1,106 @@
+{
+  "name": "classification_eval",
+  "description": "Intent classification evaluation dataset",
+  "cases": [
+    {
+      "id": "cls_001",
+      "input": "I want to cancel my subscription immediately",
+      "expected": "cancellation"
+    },
+    {
+      "id": "cls_002",
+      "input": "How do I reset my password?",
+      "expected": "account_help"
+    },
+    {
+      "id": "cls_003",
+      "input": "Your product is amazing, I love using it every day!",
+      "expected": "positive_feedback"
+    },
+    {
+      "id": "cls_004",
+      "input": "I was charged twice for my order last week",
+      "expected": "billing_issue"
+    },
+    {
+      "id": "cls_005",
+      "input": "Can you upgrade me to the premium plan?",
+      "expected": "upgrade_request"
+    },
+    {
+      "id": "cls_006",
+      "input": "The app keeps crashing when I try to open it",
+      "expected": "technical_issue"
+    },
+    {
+      "id": "cls_007",
+      "input": "Where can I find the user manual?",
+      "expected": "information_request"
+    },
+    {
+      "id": "cls_008",
+      "input": "I need a refund for my purchase",
+      "expected": "refund_request"
+    },
+    {
+      "id": "cls_009",
+      "input": "This is the worst service I've ever experienced",
+      "expected": "negative_feedback"
+    },
+    {
+      "id": "cls_010",
+      "input": "Can I speak to a manager please?",
+      "expected": "escalation"
+    },
+    {
+      "id": "cls_011",
+      "input": "What are your business hours?",
+      "expected": "information_request"
+    },
+    {
+      "id": "cls_012",
+      "input": "My package hasn't arrived yet",
+      "expected": "shipping_issue"
+    },
+    {
+      "id": "cls_013",
+      "input": "I'd like to change my delivery address",
+      "expected": "account_help"
+    },
+    {
+      "id": "cls_014",
+      "input": "The feature you added last month is fantastic",
+      "expected": "positive_feedback"
+    },
+    {
+      "id": "cls_015",
+      "input": "I'm having trouble logging into my account",
+      "expected": "technical_issue"
+    },
+    {
+      "id": "cls_016",
+      "input": "Please delete all my data from your system",
+      "expected": "cancellation"
+    },
+    {
+      "id": "cls_017",
+      "input": "What's the difference between basic and pro plans?",
+      "expected": "information_request"
+    },
+    {
+      "id": "cls_018",
+      "input": "The discount code isn't working at checkout",
+      "expected": "billing_issue"
+    },
+    {
+      "id": "cls_019",
+      "input": "I want to downgrade my account to save money",
+      "expected": "upgrade_request"
+    },
+    {
+      "id": "cls_020",
+      "input": "My order arrived damaged and I'm very upset",
+      "expected": "shipping_issue"
+    }
+  ]
+}

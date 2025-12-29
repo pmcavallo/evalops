@@ -1,0 +1,116 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evalops"
+version = "0.1.0"
+description = "Production-grade LLM evaluation and observability platform"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Paulo Cavallo"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    # Core
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+
+    # LLM & Orchestration
+    "anthropic>=0.18.0",
+    "langsmith>=0.1.0",
+    "langgraph>=0.0.20",
+
+    # Observability
+    "structlog>=24.0.0",
+
+    # API
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+
+    # CLI
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+
+    # Database
+    "sqlalchemy>=2.0.0",
+    "aiosqlite>=0.19.0",
+
+    # Async
+    "httpx>=0.26.0",
+
+    # Embeddings (for SemanticSimilarity metric)
+    "sentence-transformers>=2.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.8.0",
+    "ruff>=0.2.0",
+]
+dashboard = [
+    "streamlit>=1.31.0",
+    "plotly>=5.18.0",
+]
+all = [
+    "evalops[dev,dashboard]",
+]
+
+[project.scripts]
+evalops = "evalops.cli.main:app"
+evalops-dashboard = "evalops.dashboard.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.coverage.run]
+source = ["src/evalops"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "@abstractmethod",
+]
