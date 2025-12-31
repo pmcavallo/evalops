@@ -1,0 +1,22 @@
+# Dashboard-only dependencies (no ML inference)
+# For running the Streamlit dashboard with pre-computed results
+
+# Dashboard UI
+streamlit>=1.31.0
+plotly>=5.18.0
+
+# Database
+sqlalchemy>=2.0.0
+
+# Data models
+pydantic>=2.0
+
+# Logging/formatting
+structlog>=24.0.0
+rich>=13.0.0
+
+# HTTP client (for API calls if needed)
+httpx>=0.26.0
+
+# Required by evalops imports
+anthropic>=0.18.0

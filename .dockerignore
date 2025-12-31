@@ -1,0 +1,42 @@
+# Git
+.git/
+.gitignore
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Virtual environment
+venv/
+.venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+
+# Tests (not needed in production)
+tests/
+
+# Docs and misc
+docs/
+*.md
+!README.md
+.github/
+
+# AWS keys (never include!)
+*.pem
+block-device.json
+
+# Old docker directory
+docker/
+
+# Examples (not needed for dashboard)
+examples/
+scripts/

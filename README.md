@@ -4,7 +4,14 @@ Production-grade evaluation framework for LLM applications.
 
 [![CI](https://github.com/pmcavallo/evalops/actions/workflows/ci.yml/badge.svg)](https://github.com/pmcavallo/evalops/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/docker-pmcavallo%2Fevalops-blue.svg)](https://hub.docker.com/r/pmcavallo/evalops)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Live Demo
+
+**Dashboard:** [http://44.213.248.8:8501](http://44.213.248.8:8501)
+
+Explore 24 evaluation runs with 470 test cases across Q&A, classification, and summarization tasks.
 
 ## The Problem
 
@@ -20,13 +27,22 @@ EvalOps provides systematic evaluation with:
 - **A/B Comparison**: Statistical testing for prompt/model changes
 - **Full Observability**: LangSmith integration, structured logging, tracing
 
-## Installation
+## Quick Start
+
+### Docker (Recommended)
+
+```bash
+docker pull pmcavallo/evalops:latest
+docker run -p 8501:8501 pmcavallo/evalops:latest
+```
+
+Open [http://localhost:8501](http://localhost:8501) to view the dashboard.
+
+### Local Installation
 
 ```bash
 pip install evalops
 ```
-
-## Quick Start
 
 ```python
 from evalops.core import Dataset, EvalRunner
@@ -134,6 +150,41 @@ evalops/
 └── dashboard/      # Streamlit visualization
 ```
 
+## Deployment
+
+### Docker
+
+Build and run locally:
+
+```bash
+docker build -t evalops .
+docker run -p 8501:8501 evalops
+```
+
+Or use the pre-built image from Docker Hub:
+
+```bash
+docker pull pmcavallo/evalops:latest
+docker run -d -p 8501:8501 --name evalops pmcavallo/evalops:latest
+```
+
+### AWS Deployment
+
+EvalOps is deployed on AWS with the following architecture:
+
+| Service | Purpose |
+|---------|---------|
+| EC2 (t3.micro) | Hosts Streamlit dashboard via Docker |
+| DynamoDB | Stores evaluation runs, cases, and baselines |
+| IAM | Least-privilege access for deployment user |
+
+**Deploy to your own AWS:**
+
+1. Create EC2 instance (Amazon Linux 2023, t3.micro)
+2. Install Docker: `sudo dnf install docker -y && sudo systemctl start docker`
+3. Pull and run: `docker run -d -p 8501:8501 pmcavallo/evalops:latest`
+4. Configure Security Group to allow port 8501
+
 ## Storage
 
 Results persist to SQLite (local) or PostgreSQL (production):
@@ -166,12 +217,22 @@ git clone https://github.com/pmcavallo/evalops.git
 cd evalops
 pip install -e ".[dev]"
 
-# Run tests
+# Run tests (285 passing)
 pytest
 
 # Run with coverage
 pytest --cov=evalops
 ```
+
+## Tech Stack
+
+- **Python 3.10+** - Core language
+- **sentence-transformers** - BERT embeddings for semantic similarity
+- **FastAPI** - REST API
+- **Streamlit** - Dashboard
+- **SQLAlchemy 2.0** - Database ORM
+- **Docker** - Containerization
+- **AWS (EC2, DynamoDB)** - Cloud deployment
 
 ## License
 
