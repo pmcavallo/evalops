@@ -39,7 +39,7 @@ class TestSessionStateInitialization:
 
             init_session_state()
 
-            assert mock_state["database_url"] == "sqlite:///evalops.db"
+            assert mock_state["database_url"] == "sqlite:///evalops_demo.db"
             assert mock_state["repository"] is None
             assert mock_state["selected_run_id"] is None
             assert mock_state["page"] == "Overview"
