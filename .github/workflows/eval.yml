@@ -29,7 +29,7 @@ jobs:
       - name: Run regression tests
         id: regression
         run: |
-          python -m evalops.cli.regression \
+          python -m evalops.comparison.regression \
             --dataset tests/fixtures/regression_dataset.json \
             --baseline tests/fixtures/baseline.json \
             --output-format github \
