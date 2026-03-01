@@ -35,6 +35,7 @@ from evalops.core.metrics import (
     SemanticSimilarity,
     TokenCost,
     TokenUsage,
+    PIILeakageMetric,
 )
 from evalops.core.runner import EvalResult, EvalRunResult, EvalRunner
 
@@ -57,6 +58,7 @@ __all__ = [
     "TokenCost",
     "TokenUsage",
     "SemanticSimilarity",
+    "PIILeakageMetric",
     # Judge
     "LLMJudge",
     "RubricJudge",

@@ -22,6 +22,7 @@ from evalops.core.metrics import (
     MetricResult,
     TokenCost,
     TokenUsage,
+    PIILeakageMetric,
 )
 from evalops.core.runner import EvalResult, EvalRunResult, EvalRunner
 
