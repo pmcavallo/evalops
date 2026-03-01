@@ -255,6 +255,28 @@ class TestDatabaseManager:
         health = manager.check_health()
         assert "eval_runs" not in health.get("tables", [])
 
+    def test_safe_url(self) -> None:
+        """Test URL password masking."""
+        # SQLite (no password)
+        manager = DatabaseManager("sqlite:///evalops.db")
+        assert manager._safe_url() == "sqlite:///evalops.db"
+
+        # PostgreSQL with password
+        manager = DatabaseManager("postgresql://synth_user:synth_pass@localhost/synth_db")
+        assert manager._safe_url() == "postgresql://synth_user:***@localhost/synth_db"
+
+        # MySQL with password and port
+        manager = DatabaseManager("mysql+pymysql://admin:secret123@127.0.0.1:3306/testdb")
+        assert manager._safe_url() == "mysql+pymysql://admin:***@127.0.0.1:3306/testdb"
+
+        # User but no password
+        manager = DatabaseManager("postgresql://synth_user@localhost/synth_db")
+        assert manager._safe_url() == "postgresql://synth_user@localhost/synth_db"
+
+        # Non-URL string
+        manager = DatabaseManager("not-a-url")
+        assert manager._safe_url() == "not-a-url"
+
 
 class TestEvalRepository:
     """Tests for EvalRepository class."""
