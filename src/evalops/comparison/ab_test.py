@@ -11,12 +11,12 @@ import statistics
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 from uuid import uuid4
 
 from evalops.core.dataset import EvalDataset
-from evalops.core.metrics import Metric, MetricResult
-from evalops.core.runner import EvalRunResult, EvalRunner, TargetFunc
+from evalops.core.metrics import Metric
+from evalops.core.runner import EvalRunner, EvalRunResult, TargetFunc
 
 
 class Winner(Enum):

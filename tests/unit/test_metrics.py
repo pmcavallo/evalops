@@ -2,7 +2,7 @@
 
 import pytest
 
-from evalops import EvalResult, ExactMatch, ContainsKeywords, Latency, TokenCost
+from evalops import ContainsKeywords, EvalResult, ExactMatch, Latency, TokenCost
 from evalops.core.metrics import MetricResult, TokenUsage
 
 
@@ -688,6 +688,7 @@ class TestSemanticSimilarityImportError:
     def test_import_error_message(self) -> None:
         """Test that clear error message is raised when dependency missing."""
         from unittest.mock import patch
+
         from evalops.core.metrics import SemanticSimilarity
 
         metric = SemanticSimilarity()

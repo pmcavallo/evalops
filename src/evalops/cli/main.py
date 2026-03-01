@@ -9,10 +9,8 @@ from __future__ import annotations
 import asyncio
 import importlib
 import json
-import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -110,13 +108,13 @@ def run(
         "-m",
         help="Metrics to evaluate (can specify multiple)",
     ),
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Name for this run"),
-    database: Optional[str] = typer.Option(
+    name: str | None = typer.Option(None, "--name", "-n", help="Name for this run"),
+    database: str | None = typer.Option(
         None, "--database", "-d", help="Database URL"
     ),
     save: bool = typer.Option(True, "--save/--no-save", help="Save results to database"),
     tags: list[str] = typer.Option([], "--tag", help="Tags for the run"),
-    output: Optional[Path] = typer.Option(
+    output: Path | None = typer.Option(
         None, "--output", "-o", help="Output results to JSON file"
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
@@ -284,7 +282,7 @@ def compare(
     console.print(f"  Loaded {len(eval_dataset)} cases")
 
     # Load variants
-    console.print(f"[bold]Loading variants...[/bold]")
+    console.print("[bold]Loading variants...[/bold]")
     try:
         func_a = load_target_function(variant_a)
         func_b = load_target_function(variant_b)
@@ -378,13 +376,13 @@ def _display_ab_result(result) -> None:
 
 @app.command()
 def history(
-    dataset: Optional[str] = typer.Option(None, "--dataset", "-d", help="Filter by dataset"),
+    dataset: str | None = typer.Option(None, "--dataset", "-d", help="Filter by dataset"),
     days: int = typer.Option(30, "--days", help="Number of days to show"),
     limit: int = typer.Option(20, "--limit", "-l", help="Maximum runs to show"),
-    min_pass_rate: Optional[float] = typer.Option(
+    min_pass_rate: float | None = typer.Option(
         None, "--min-pass-rate", help="Minimum pass rate filter"
     ),
-    database: Optional[str] = typer.Option(None, "--database", help="Database URL"),
+    database: str | None = typer.Option(None, "--database", help="Database URL"),
 ) -> None:
     """List past evaluation runs."""
     repo = get_repository(database)
@@ -439,11 +437,11 @@ def history(
 @app.command()
 def baseline(
     action: str = typer.Argument(..., help="Action: save, load, list, delete"),
-    run_id: Optional[str] = typer.Option(None, "--run", "-r", help="Run ID for save"),
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Baseline name"),
-    dataset: Optional[str] = typer.Option(None, "--dataset", "-d", help="Dataset name"),
-    baseline_id: Optional[str] = typer.Option(None, "--id", help="Baseline ID"),
-    database: Optional[str] = typer.Option(None, "--database", help="Database URL"),
+    run_id: str | None = typer.Option(None, "--run", "-r", help="Run ID for save"),
+    name: str | None = typer.Option(None, "--name", "-n", help="Baseline name"),
+    dataset: str | None = typer.Option(None, "--dataset", "-d", help="Dataset name"),
+    baseline_id: str | None = typer.Option(None, "--id", help="Baseline ID"),
+    database: str | None = typer.Option(None, "--database", help="Database URL"),
 ) -> None:
     """Manage baselines for regression testing."""
     repo = get_repository(database)
@@ -555,7 +553,7 @@ def drift(
     critical_threshold: float = typer.Option(
         0.10, "--critical", "-c", help="Critical threshold (e.g., 0.10 = 10%)"
     ),
-    database: Optional[str] = typer.Option(None, "--database", help="Database URL"),
+    database: str | None = typer.Option(None, "--database", help="Database URL"),
     json_output: bool = typer.Option(False, "--json", help="Output as JSON"),
 ) -> None:
     """Check for quality drift against baseline."""

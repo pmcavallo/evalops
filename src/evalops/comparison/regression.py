@@ -17,7 +17,7 @@ from typing import Any
 
 from evalops.core.dataset import EvalDataset
 from evalops.core.metrics import Metric
-from evalops.core.runner import EvalRunResult, EvalRunner, TargetFunc
+from evalops.core.runner import EvalRunner, EvalRunResult, TargetFunc
 
 
 class RegressionStatus(Enum):

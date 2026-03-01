@@ -2,8 +2,8 @@
 
 import pytest
 
-from evalops.core.runner import EvalResult
 from evalops.core.metrics import PIILeakageMetric
+from evalops.core.runner import EvalResult
 
 
 class TestPIILeakageMetric:

@@ -7,11 +7,11 @@ capturing inputs, outputs, latency, and token usage.
 from __future__ import annotations
 
 import os
+from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 from uuid import uuid4
 
 if TYPE_CHECKING:

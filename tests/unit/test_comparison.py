@@ -4,7 +4,7 @@ import json
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -195,7 +195,7 @@ class TestABTest:
     @pytest.mark.asyncio
     async def test_compare_variants(self, ab_test: ABTest) -> None:
         """Test comparing two variants."""
-        from evalops import EvalCase, EvalDataset, EvalRunResult
+        from evalops import EvalCase, EvalDataset
         from evalops.core.metrics import ExactMatch
 
         dataset = EvalDataset(
@@ -830,11 +830,7 @@ class TestComparisonModuleImports:
         """Test A/B testing imports."""
         from evalops.comparison import (
             ABTest,
-            ABTestResult,
-            MetricComparison,
-            StatisticalResult,
             Winner,
-            compare_variants,
         )
 
         assert ABTest is not None
@@ -844,11 +840,7 @@ class TestComparisonModuleImports:
         """Test drift detection imports."""
         from evalops.comparison import (
             AlertSeverity,
-            DriftAlert,
             DriftDetector,
-            DriftDirection,
-            DriftReport,
-            MetricSnapshot,
         )
 
         assert DriftDetector is not None
@@ -857,12 +849,8 @@ class TestComparisonModuleImports:
     def test_regression_imports(self) -> None:
         """Test regression testing imports."""
         from evalops.comparison import (
-            MetricThreshold,
-            RegressionReport,
-            RegressionResult,
             RegressionStatus,
             RegressionTester,
-            run_regression_test,
         )
 
         assert RegressionTester is not None

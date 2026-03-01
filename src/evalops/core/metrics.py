@@ -6,11 +6,11 @@ evaluating LLM system outputs against expected values.
 
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any
 
-import re
 from evalops.core.runner import EvalResult
 
 
@@ -465,7 +465,7 @@ class SemanticSimilarity(Metric):
     """
 
     # Lazy-loaded model instance (class-level cache)
-    _model_cache: dict[str, "SentenceTransformer"] = {}
+    _model_cache: dict[str, SentenceTransformer] = {}
 
     def __init__(
         self,
@@ -484,13 +484,13 @@ class SemanticSimilarity(Metric):
         self.model_name = model_name
         self.threshold = threshold
         self.device = device
-        self._model: "SentenceTransformer | None" = None
+        self._model: SentenceTransformer | None = None
 
     @property
     def name(self) -> str:
         return "semantic_similarity"
 
-    def _get_model(self) -> "SentenceTransformer":
+    def _get_model(self) -> SentenceTransformer:
         """Lazy-load the sentence transformer model."""
         if self._model is not None:
             return self._model

@@ -6,13 +6,13 @@ import json
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
 
 from evalops.api import app as fastapi_app
-from evalops.api.app import app_state, get_repository, get_db_manager
+from evalops.api.app import get_db_manager, get_repository
 
 
 @pytest.fixture

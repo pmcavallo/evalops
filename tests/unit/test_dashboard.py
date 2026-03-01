@@ -16,8 +16,8 @@ import pytest
 
 # Check for optional dependencies
 try:
-    import streamlit
     import plotly
+    import streamlit
     DASHBOARD_DEPS_AVAILABLE = True
 except ImportError:
     DASHBOARD_DEPS_AVAILABLE = False
@@ -449,6 +449,7 @@ class TestDashboardCLI:
     def test_cli_builds_correct_command(self):
         """Test that CLI builds the correct streamlit command."""
         from pathlib import Path
+
         from evalops.dashboard import cli
 
         app_path = Path(cli.__file__).parent / "app.py"

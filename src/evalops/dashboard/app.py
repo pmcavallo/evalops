@@ -14,14 +14,12 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-import streamlit as st
-import plotly.express as px
 import plotly.graph_objects as go
+import streamlit as st
 from plotly.subplots import make_subplots
 
 from evalops import __version__
 from evalops.storage import DatabaseManager, EvalRepository
-
 
 # ============================================================================
 # Configuration & Session State
@@ -31,26 +29,26 @@ from evalops.storage import DatabaseManager, EvalRepository
 def init_session_state() -> None:
     """Initialize session state variables."""
     if "database_url" not in st.session_state:
-        st.session_state.database_url = "sqlite:///evalops_demo.db"
+        st.session_state["database_url"] = "sqlite:///evalops_demo.db"
     if "repository" not in st.session_state:
-        st.session_state.repository = None
+        st.session_state["repository"] = None
     if "selected_run_id" not in st.session_state:
-        st.session_state.selected_run_id = None
+        st.session_state["selected_run_id"] = None
     if "page" not in st.session_state:
-        st.session_state.page = "Overview"
+        st.session_state["page"] = "Overview"
 
 
 def get_repository() -> EvalRepository | None:
     """Get or create repository instance."""
-    if st.session_state.repository is None:
+    if st.session_state.get("repository") is None:
         try:
-            repo = EvalRepository(st.session_state.database_url)
+            repo = EvalRepository(st.session_state.get("database_url", "sqlite:///evalops_demo.db"))
             repo.initialize()
-            st.session_state.repository = repo
+            st.session_state["repository"] = repo
         except Exception as e:
             st.error(f"Failed to connect to database: {e}")
             return None
-    return st.session_state.repository
+    return st.session_state.get("repository")
 
 
 def reconnect_database(url: str) -> bool:
@@ -58,8 +56,8 @@ def reconnect_database(url: str) -> bool:
     try:
         repo = EvalRepository(url)
         repo.initialize()
-        st.session_state.database_url = url
-        st.session_state.repository = repo
+        st.session_state["database_url"] = url
+        st.session_state["repository"] = repo
         return True
     except Exception as e:
         st.error(f"Connection failed: {e}")

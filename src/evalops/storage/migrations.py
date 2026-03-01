@@ -6,7 +6,6 @@ including table creation and version tracking.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import inspect, select, text
@@ -18,7 +17,6 @@ from evalops.storage.models import (
     get_engine,
     get_session_factory,
 )
-
 
 # Current schema version
 CURRENT_VERSION = 1
