@@ -432,7 +432,7 @@ class TestEvalRepository:
 
         # Save second baseline
         sample_run_result.id = "run-2"
-        second = repo.save_baseline(sample_run_result, name="v2.0")
+        repo.save_baseline(sample_run_result, name="v2.0")
 
         # First should be deactivated
         baselines = repo.list_baselines(dataset_name="test_dataset")

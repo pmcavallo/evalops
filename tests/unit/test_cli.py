@@ -369,7 +369,7 @@ class TestRunCommand:
                     mock_eval.return_value = mock_result
 
                     # Use a simple lambda as target
-                    result = runner.invoke(
+                    runner.invoke(
                         app,
                         [
                             "run",

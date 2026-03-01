@@ -203,7 +203,6 @@ def run(
 def _display_run_result(result, verbose: bool = False) -> None:
     """Display run result in a formatted table."""
     # Status panel
-    status_color = "green" if result.pass_rate >= 0.8 else "yellow" if result.pass_rate >= 0.5 else "red"
     status_emoji = "[green]PASSED[/green]" if result.pass_rate >= 0.8 else "[red]FAILED[/red]"
 
     console.print(

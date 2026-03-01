@@ -69,7 +69,7 @@ class TestRepositoryConnection:
             with patch("evalops.dashboard.app.EvalRepository", return_value=mock_repo) as MockRepo:
                 from evalops.dashboard.app import get_repository
 
-                result = get_repository()
+                get_repository()
 
                 MockRepo.assert_called_once_with("sqlite:///:memory:")
                 mock_repo.initialize.assert_called_once()
