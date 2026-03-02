@@ -14,14 +14,12 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-import streamlit as st
-import plotly.express as px
 import plotly.graph_objects as go
+import streamlit as st
 from plotly.subplots import make_subplots
 
 from evalops import __version__
 from evalops.storage import DatabaseManager, EvalRepository
-
 
 # ============================================================================
 # Configuration & Session State
@@ -31,26 +29,26 @@ from evalops.storage import DatabaseManager, EvalRepository
 def init_session_state() -> None:
     """Initialize session state variables."""
     if "database_url" not in st.session_state:
-        st.session_state.database_url = "sqlite:///evalops_demo.db"
+        st.session_state["database_url"] = "sqlite:///evalops_demo.db"
     if "repository" not in st.session_state:
-        st.session_state.repository = None
+        st.session_state["repository"] = None
     if "selected_run_id" not in st.session_state:
-        st.session_state.selected_run_id = None
+        st.session_state["selected_run_id"] = None
     if "page" not in st.session_state:
-        st.session_state.page = "Overview"
+        st.session_state["page"] = "Overview"
 
 
 def get_repository() -> EvalRepository | None:
     """Get or create repository instance."""
-    if st.session_state.repository is None:
+    if st.session_state.get("repository") is None:
         try:
-            repo = EvalRepository(st.session_state.database_url)
+            repo = EvalRepository(st.session_state["database_url"])
             repo.initialize()
-            st.session_state.repository = repo
+            st.session_state["repository"] = repo
         except Exception as e:
             st.error(f"Failed to connect to database: {e}")
             return None
-    return st.session_state.repository
+    return st.session_state.get("repository")
 
 
 def reconnect_database(url: str) -> bool:
@@ -58,8 +56,8 @@ def reconnect_database(url: str) -> bool:
     try:
         repo = EvalRepository(url)
         repo.initialize()
-        st.session_state.database_url = url
-        st.session_state.repository = repo
+        st.session_state["database_url"] = url
+        st.session_state["repository"] = repo
         return True
     except Exception as e:
         st.error(f"Connection failed: {e}")
@@ -158,19 +156,25 @@ def render_overview_page(repo: EvalRepository) -> None:
 
         if recent_runs:
             for run in recent_runs[:5]:
-                status_icon = "✅" if run.pass_rate >= 0.8 else "⚠️" if run.pass_rate >= 0.5 else "❌"
+                status_icon = (
+                    "✅" if run.pass_rate >= 0.8 else "⚠️" if run.pass_rate >= 0.5 else "❌"
+                )
                 with st.container():
                     col_a, col_b, col_c = st.columns([3, 1, 1])
                     with col_a:
                         run_name = run.name or run.dataset_name
                         st.markdown(f"**{run_name}**")
-                        st.caption(f"{run.started_at.strftime('%Y-%m-%d %H:%M') if run.started_at else 'N/A'}")
+                        start_time_str = (
+                            run.started_at.strftime("%Y-%m-%d %H:%M")
+                            if run.started_at else "N/A"
+                        )
+                        st.caption(start_time_str)
                     with col_b:
                         st.markdown(f"{status_icon} {run.pass_rate:.0%}")
                     with col_c:
                         if st.button("View", key=f"view_{run.id}"):
-                            st.session_state.selected_run_id = run.id
-                            st.session_state.page = "Run Detail"
+                            st.session_state["selected_run_id"] = run.id
+                            st.session_state["page"] = "Run Detail"
                             st.rerun()
                     st.markdown("---")
         else:
@@ -319,7 +323,10 @@ def render_run_explorer_page(repo: EvalRepository) -> None:
                         st.caption(", ".join(tags[:3]))
 
                 with col_c:
-                    color = "green" if run.pass_rate >= 0.8 else "orange" if run.pass_rate >= 0.5 else "red"
+                    color = (
+                        "green" if run.pass_rate >= 0.8
+                        else "orange" if run.pass_rate >= 0.5 else "red"
+                    )
                     st.markdown(f":{color}[{run.pass_rate:.0%}]")
 
                 with col_d:
@@ -328,8 +335,8 @@ def render_run_explorer_page(repo: EvalRepository) -> None:
 
                 with col_e:
                     if st.button("Details", key=f"details_{run.id}"):
-                        st.session_state.selected_run_id = run.id
-                        st.session_state.page = "Run Detail"
+                        st.session_state["selected_run_id"] = run.id
+                        st.session_state["page"] = "Run Detail"
                         st.rerun()
 
                 st.markdown("---")
@@ -344,12 +351,12 @@ def render_run_explorer_page(repo: EvalRepository) -> None:
 
 def render_run_detail_page(repo: EvalRepository) -> None:
     """Render the run detail page."""
-    run_id = st.session_state.selected_run_id
+    run_id = st.session_state.get("selected_run_id")
 
     if not run_id:
         st.warning("No run selected. Please select a run from the Explorer.")
         if st.button("Go to Explorer"):
-            st.session_state.page = "Run Explorer"
+            st.session_state["page"] = "Run Explorer"
             st.rerun()
         return
 
@@ -369,7 +376,7 @@ def render_run_detail_page(repo: EvalRepository) -> None:
             st.caption(f"Started: {run.started_at.strftime('%Y-%m-%d %H:%M:%S')}")
     with col2:
         if st.button("← Back to Explorer"):
-            st.session_state.page = "Run Explorer"
+            st.session_state["page"] = "Run Explorer"
             st.rerun()
 
     st.markdown("---")
@@ -419,12 +426,15 @@ def render_run_detail_page(repo: EvalRepository) -> None:
             for m in metric_names
         ]
 
+        marker_colors = [
+            "#28a745" if run.metrics_summary[m].get("passed", False) else "#dc3545"
+            for m in metric_names
+        ]
         fig = go.Figure(data=[
             go.Bar(
                 x=metric_names,
                 y=metric_scores,
-                marker_color=['#28a745' if run.metrics_summary[m].get("passed", False) else '#dc3545'
-                              for m in metric_names],
+                marker_color=marker_colors,
             )
         ])
         fig.update_layout(
@@ -544,7 +554,9 @@ def render_comparison_page(repo: EvalRepository) -> None:
     with col2:
         st.subheader("Variant B")
         default_b = 1 if len(run_labels) > 1 else 0
-        variant_b_label = st.selectbox("Select Run B", options=run_labels, index=default_b, key="variant_b")
+        variant_b_label = st.selectbox(
+            "Select Run B", options=run_labels, index=default_b, key="variant_b"
+        )
 
     if variant_a_label == variant_b_label:
         st.warning("Please select two different runs to compare.")
@@ -621,8 +633,14 @@ def render_comparison_page(repo: EvalRepository) -> None:
         scores_b = []
 
         for m in metric_names:
-            score_a = run_a.metrics_summary.get(m, {}).get("score", 0) if run_a.metrics_summary else 0
-            score_b = run_b.metrics_summary.get(m, {}).get("score", 0) if run_b.metrics_summary else 0
+            score_a = (
+                run_a.metrics_summary.get(m, {}).get("score", 0)
+                if run_a.metrics_summary else 0
+            )
+            score_b = (
+                run_b.metrics_summary.get(m, {}).get("score", 0)
+                if run_b.metrics_summary else 0
+            )
 
             # Convert to percentage if <= 1
             scores_a.append(score_a * 100 if score_a <= 1 else score_a)
@@ -654,8 +672,12 @@ def render_comparison_page(repo: EvalRepository) -> None:
         latencies_b = [c.latency_ms for c in cases_b]
 
         fig = go.Figure()
-        fig.add_trace(go.Histogram(x=latencies_a, name='Variant A', opacity=0.7, marker_color='#1f77b4'))
-        fig.add_trace(go.Histogram(x=latencies_b, name='Variant B', opacity=0.7, marker_color='#ff7f0e'))
+        fig.add_trace(go.Histogram(
+            x=latencies_a, name='Variant A', opacity=0.7, marker_color='#1f77b4'
+        ))
+        fig.add_trace(go.Histogram(
+            x=latencies_b, name='Variant B', opacity=0.7, marker_color='#ff7f0e'
+        ))
         fig.update_layout(
             barmode='overlay',
             xaxis_title="Latency (ms)",
@@ -682,7 +704,10 @@ def render_drift_monitor_page(repo: EvalRepository) -> None:
 
     if not baselines:
         st.warning("No baselines configured. Create a baseline first to monitor drift.")
-        st.info("Use the CLI to create a baseline: `evalops baseline save --run RUN_ID --name NAME`")
+        st.info(
+            "Use the CLI to create a baseline: "
+            "`evalops baseline save --run RUN_ID --name NAME`"
+        )
         return
 
     # Baseline selector
@@ -694,7 +719,10 @@ def render_drift_monitor_page(repo: EvalRepository) -> None:
         baseline = baseline_options[selected_label]
 
     with col2:
-        days = st.selectbox("Time Range", options=[7, 14, 30, 60], index=2, format_func=lambda x: f"Last {x} days")
+        days = st.selectbox(
+            "Time Range", options=[7, 14, 30, 60], index=2,
+            format_func=lambda x: f"Last {x} days"
+        )
 
     st.markdown("---")
 
@@ -889,9 +917,9 @@ def render_guide_page() -> None:
     )
 
     st.markdown(
-        "**The Problem:** Traditional software testing (unit tests, integration tests) doesn't work "
-        "for LLMs because outputs are non-deterministic. A correct answer today might be phrased "
-        "differently tomorrow, and simple string matching fails."
+        "**The Problem:** Traditional software testing (unit tests, integration tests) "
+        "doesn't work for LLMs because outputs are non-deterministic. A correct answer "
+        "today might be phrased differently tomorrow, and simple string matching fails."
     )
 
     st.markdown(
@@ -952,10 +980,13 @@ def render_guide_page() -> None:
 
     cost_data = [
         {"Component": "EvalOps Framework", "Cost": "Free", "Notes": "Open source, MIT license"},
-        {"Component": "Semantic Similarity (BERT)", "Cost": "Free", "Notes": "Runs locally via sentence-transformers"},
+        {"Component": "Semantic Similarity (BERT)", "Cost": "Free",
+         "Notes": "Runs locally via sentence-transformers"},
         {"Component": "Database (SQLite)", "Cost": "Free", "Notes": "Local file, no server needed"},
-        {"Component": "Database (PostgreSQL)", "Cost": "~$0-15/mo", "Notes": "Free tier available on most clouds"},
-        {"Component": "LLM API (if evaluating)", "Cost": "Varies", "Notes": "Claude Haiku ~$0.25/1M tokens, GPT-4o-mini similar"},
+        {"Component": "Database (PostgreSQL)", "Cost": "~$0-15/mo",
+         "Notes": "Free tier available on most clouds"},
+        {"Component": "LLM API (if evaluating)", "Cost": "Varies",
+         "Notes": "Claude Haiku ~$0.25/1M tokens, GPT-4o-mini similar"},
     ]
 
     st.dataframe(cost_data, use_container_width=True, hide_index=True)
@@ -1012,7 +1043,7 @@ def render_settings_page() -> None:
 
     st.subheader("Database Configuration")
 
-    current_url = st.session_state.database_url
+    current_url = st.session_state.get("database_url", "")
 
     # Mask password if present
     display_url = current_url
@@ -1046,7 +1077,9 @@ def render_settings_page() -> None:
                 manager = DatabaseManager(new_url)
                 health = manager.check_health()
                 if health.get("healthy"):
-                    st.success(f"Connection OK! Version: {health.get('version')}, Tables: {', '.join(health.get('tables', []))}")
+                    version = health.get('version')
+                    tables = ', '.join(health.get('tables', []))
+                    st.success(f"Connection OK! Version: {version}, Tables: {tables}")
                 else:
                     st.error(f"Connection failed: {health.get('error')}")
             except Exception as e:
@@ -1059,7 +1092,7 @@ def render_settings_page() -> None:
     repo = get_repository()
     if repo:
         try:
-            manager = DatabaseManager(st.session_state.database_url)
+            manager = DatabaseManager(st.session_state.get("database_url", ""))
             health = manager.check_health()
 
             col1, col2 = st.columns(2)
@@ -1106,11 +1139,14 @@ def main() -> None:
         st.markdown("## 📊 EvalOps")
         st.markdown("---")
 
-        pages = ["Overview", "Guide", "Run Explorer", "Run Detail", "Comparison", "Drift Monitor", "Settings"]
+        pages = [
+            "Overview", "Guide", "Run Explorer", "Run Detail",
+            "Comparison", "Drift Monitor", "Settings"
+        ]
 
         for page in pages:
             if st.button(page, key=f"nav_{page}", use_container_width=True):
-                st.session_state.page = page
+                st.session_state["page"] = page
                 st.rerun()
 
         st.markdown("---")
@@ -1120,7 +1156,7 @@ def main() -> None:
     repo = get_repository()
 
     # Render selected page
-    page = st.session_state.page
+    page = st.session_state.get("page", "Overview")
 
     if page == "Settings":
         render_settings_page()

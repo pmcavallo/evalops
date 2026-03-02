@@ -17,7 +17,7 @@ from typing import Any
 
 from evalops.core.dataset import EvalDataset
 from evalops.core.metrics import Metric
-from evalops.core.runner import EvalRunResult, EvalRunner, TargetFunc
+from evalops.core.runner import EvalRunner, EvalRunResult, TargetFunc
 
 
 class RegressionStatus(Enum):
@@ -137,7 +137,8 @@ class RegressionReport:
             baseline = f"{r.baseline_value:.4f}" if r.baseline_value else "-"
             threshold = f"{r.threshold:.4f}" if r.threshold else "-"
             lines.append(
-                f"| {r.metric_name} | {status_icon} | {r.current_value:.4f} | {baseline} | {threshold} |"
+                f"| {r.metric_name} | {status_icon} | {r.current_value:.4f} | "
+                f"{baseline} | {threshold} |"
             )
 
         lines.append("")
@@ -420,13 +421,14 @@ class RegressionTester:
         # Check pass rate threshold
         if threshold.min_pass_rate is not None:
             if current_value < threshold.min_pass_rate:
+                msg = f"Pass rate {current_value:.1%} below threshold {threshold.min_pass_rate:.1%}"
                 return RegressionResult(
                     metric_name=metric_name,
                     status=RegressionStatus.FAILED,
                     current_value=current_value,
                     baseline_value=baseline_value,
                     threshold=threshold.min_pass_rate,
-                    message=f"Pass rate {current_value:.1%} below threshold {threshold.min_pass_rate:.1%}",
+                    message=msg,
                 )
 
         # Check degradation from baseline

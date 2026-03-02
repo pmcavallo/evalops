@@ -176,10 +176,10 @@ class EvalRunner:
 
     def __init__(
         self,
-        tracer: "EvalTracer | None" = None,
-        logger: "EvalLogger | None" = None,
-        collector: "MetricsCollector | None" = None,
-        repository: "EvalRepository | None" = None,
+        tracer: EvalTracer | None = None,
+        logger: EvalLogger | None = None,
+        collector: MetricsCollector | None = None,
+        repository: EvalRepository | None = None,
         enable_observability: bool = True,
         auto_save: bool = False,
     ) -> None:
@@ -284,7 +284,7 @@ class EvalRunner:
         Returns:
             EvalRunResult with all individual results and summary stats.
         """
-        from evalops.observability.logging import LogContext, set_dataset_id, set_run_id
+        from evalops.observability.logging import set_dataset_id, set_run_id
 
         run_id = str(uuid4())
         run_name = run_name or f"eval_{dataset.name}"
@@ -436,7 +436,7 @@ class EvalRunner:
         self,
         dataset: EvalDataset,
         target: TargetFunc,
-        metrics: "list[Metric] | None" = None,
+        metrics: list[Metric] | None = None,
         run_name: str | None = None,
         save: bool | None = None,
         tags: list[str] | None = None,

@@ -1,21 +1,15 @@
 """Unit tests for the storage module."""
 
-import tempfile
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
 
 from evalops.storage.migrations import CURRENT_VERSION, DatabaseManager
 from evalops.storage.models import (
-    Base,
     BaselineRecord,
     EvalCaseRecord,
     EvalRunRecord,
-    SchemaVersion,
-    get_engine,
-    get_session_factory,
 )
 from evalops.storage.repository import EvalRepository
 

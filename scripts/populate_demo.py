@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import asyncio
 import sys
-from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 # Add src to path for imports
@@ -26,7 +25,6 @@ from evalops.core.dataset import EvalDataset
 from evalops.core.metrics import ExactMatch
 from evalops.core.runner import EvalRunner
 from evalops.storage.repository import EvalRepository
-
 
 # Import demo targets
 sys.path.insert(0, str(Path(__file__).parent.parent / "demo"))
