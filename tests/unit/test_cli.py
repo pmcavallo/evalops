@@ -105,8 +105,8 @@ class TestHealthCommand:
 
     def test_health_healthy_database(self):
         """Test health command with healthy database."""
-        with patch("evalops.storage.DatabaseManager") as MockManager:
-            mock_instance = MockManager.return_value
+        with patch("evalops.storage.DatabaseManager") as mock_manager_cls:
+            mock_instance = mock_manager_cls.return_value
             mock_instance.check_health.return_value = {
                 "healthy": True,
                 "version": 1,
@@ -123,8 +123,8 @@ class TestHealthCommand:
 
     def test_health_unhealthy_database(self):
         """Test health command with unhealthy database."""
-        with patch("evalops.storage.DatabaseManager") as MockManager:
-            mock_instance = MockManager.return_value
+        with patch("evalops.storage.DatabaseManager") as mock_manager_cls:
+            mock_instance = mock_manager_cls.return_value
             mock_instance.check_health.return_value = {
                 "healthy": False,
                 "error": "Connection failed",
@@ -181,7 +181,11 @@ class TestHistoryCommand:
         with patch("evalops.cli.main.get_repository") as mock_get_repo:
             mock_repo = MagicMock()
             mock_repo.list_runs.return_value = []
-            mock_repo.get_run_stats.return_value = {"total_runs": 0, "avg_pass_rate": 0.0, "total_cases": 0}
+            mock_repo.get_run_stats.return_value = {
+                "total_runs": 0,
+                "avg_pass_rate": 0.0,
+                "total_cases": 0,
+            }
             mock_get_repo.return_value = mock_repo
 
             result = runner.invoke(app, ["history", "--dataset", "my_dataset"])
@@ -265,8 +269,6 @@ class TestDriftCommand:
 
     def test_drift_no_history(self):
         """Test drift command with no recent runs."""
-        from datetime import datetime, timezone
-
         with patch("evalops.cli.main.get_repository") as mock_get_repo:
             mock_baseline = MagicMock()
             mock_baseline.name = "test_baseline"
@@ -284,8 +286,6 @@ class TestDriftCommand:
 
     def test_drift_healthy(self):
         """Test drift command with healthy metrics."""
-        from datetime import datetime, timezone
-
         with patch("evalops.cli.main.get_repository") as mock_get_repo:
             mock_baseline = MagicMock()
             mock_baseline.name = "test_baseline"
@@ -371,7 +371,7 @@ class TestRunCommand:
                     mock_eval.return_value = mock_result
 
                     # Use a simple lambda as target
-                    result = runner.invoke(
+                    runner.invoke(
                         app,
                         [
                             "run",

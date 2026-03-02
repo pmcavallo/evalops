@@ -688,6 +688,7 @@ class TestSemanticSimilarityImportError:
     def test_import_error_message(self) -> None:
         """Test that clear error message is raised when dependency missing."""
         from unittest.mock import patch
+
         from evalops.core.metrics import SemanticSimilarity
 
         metric = SemanticSimilarity()
@@ -697,13 +698,6 @@ class TestSemanticSimilarityImportError:
             # Clear the model cache to force re-import
             SemanticSimilarity._model_cache.clear()
             metric._model = None
-
-            result = EvalResult(
-                case_id="1",
-                input="test",
-                output="Hello",
-                expected="Hello",
-            )
 
             # The import error happens inside _get_model
             # This test verifies the error handling path exists

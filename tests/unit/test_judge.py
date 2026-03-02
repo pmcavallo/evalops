@@ -1,6 +1,6 @@
 """Unit tests for the LLMJudge module."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -162,7 +162,10 @@ class TestLLMJudge:
         mock_response = MagicMock()
         mock_response.content = [
             MagicMock(
-                text='{"overall": 9.5, "criteria_scores": {"accuracy": 10, "clarity": 9}, "reasoning": "Perfect answer"}'
+                text=(
+                    '{"overall": 9.5, "criteria_scores": {"accuracy": 10, "clarity": 9}, '
+                    '"reasoning": "Perfect answer"}'
+                )
             )
         ]
         mock_client.messages.create.return_value = mock_response

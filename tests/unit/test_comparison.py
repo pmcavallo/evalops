@@ -4,7 +4,7 @@ import json
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -195,7 +195,7 @@ class TestABTest:
     @pytest.mark.asyncio
     async def test_compare_variants(self, ab_test: ABTest) -> None:
         """Test comparing two variants."""
-        from evalops import EvalCase, EvalDataset, EvalRunResult
+        from evalops import EvalCase, EvalDataset
         from evalops.core.metrics import ExactMatch
 
         dataset = EvalDataset(
