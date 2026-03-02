@@ -5,3 +5,7 @@ This module will provide command-line interface for:
 - Managing datasets
 - Viewing results
 """
+
+from evalops.cli import regression, main
+
+__all__ = ["regression", "main"]

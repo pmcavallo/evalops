@@ -20,11 +20,14 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
+from evalops.cli import regression
+
 app = typer.Typer(
     name="evalops",
     help="Production-grade LLM evaluation and observability platform.",
     add_completion=False,
 )
+app.add_typer(regression.app, name="regression")
 
 console = Console()
 

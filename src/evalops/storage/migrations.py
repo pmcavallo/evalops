@@ -6,7 +6,6 @@ including table creation and version tracking.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import inspect, select, text

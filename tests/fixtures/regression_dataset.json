@@ -1,0 +1,7 @@
+{
+  "name": "regression_test",
+  "cases": [
+    {"input": "hello", "expected": "hello"},
+    {"input": "world", "expected": "world"}
+  ]
+}

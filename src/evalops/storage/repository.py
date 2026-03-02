@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
-from uuid import uuid4
 
 from sqlalchemy import and_, desc, func, select
 from sqlalchemy.orm import Session
@@ -18,13 +17,12 @@ from evalops.storage.models import (
     BaselineRecord,
     EvalCaseRecord,
     EvalRunRecord,
-    SchemaVersion,
     get_engine,
     get_session_factory,
 )
 
 if TYPE_CHECKING:
-    from evalops.core.runner import EvalResult, EvalRunResult
+    from evalops.core.runner import EvalRunResult
 
 
 class EvalRepository:
@@ -92,7 +90,7 @@ class EvalRepository:
 
     def save_run(
         self,
-        run_result: "EvalRunResult",
+        run_result: EvalRunResult,
         name: str | None = None,
         tags: list[str] | None = None,
         metadata: dict[str, Any] | None = None,
@@ -381,7 +379,7 @@ class EvalRepository:
 
     def save_baseline(
         self,
-        run_result: "EvalRunResult",
+        run_result: EvalRunResult,
         name: str,
         deactivate_existing: bool = True,
         metadata: dict[str, Any] | None = None,
