@@ -7,13 +7,9 @@ import pytest
 
 from evalops.storage.migrations import CURRENT_VERSION, DatabaseManager
 from evalops.storage.models import (
-    Base,
     BaselineRecord,
     EvalCaseRecord,
     EvalRunRecord,
-    SchemaVersion,
-    get_engine,
-    get_session_factory,
 )
 from evalops.storage.repository import EvalRepository
 
@@ -255,8 +251,10 @@ class TestDatabaseManager:
 
     def test_safe_url(self) -> None:
         """Test URL password masking."""
-        with patch("evalops.storage.migrations.get_engine"), \
-             patch("evalops.storage.migrations.get_session_factory"):
+        with (
+            patch("evalops.storage.migrations.get_engine"),
+            patch("evalops.storage.migrations.get_session_factory"),
+        ):
             # SQLite (no password)
             manager = DatabaseManager("sqlite:///evalops.db")
             assert manager._safe_url() == "sqlite:///evalops.db"

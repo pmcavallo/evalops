@@ -2,7 +2,7 @@
 
 import pytest
 
-from evalops import EvalResult, ExactMatch, ContainsKeywords, Latency, TokenCost
+from evalops import ContainsKeywords, EvalResult, ExactMatch, Latency, TokenCost
 from evalops.core.metrics import MetricResult, TokenUsage
 
 
@@ -346,7 +346,7 @@ class TestTokenCost:
         result = EvalResult(
             case_id="1",
             input="Hello world",  # ~11 chars / 4 = ~2 tokens
-            output="Hi there!",    # ~9 chars / 4 = ~2 tokens
+            output="Hi there!",  # ~9 chars / 4 = ~2 tokens
         )
         metric_result = metric.compute(result)
 
@@ -398,9 +398,7 @@ class TestTokenCost:
             case_id="1",
             input="test",
             output="response",
-            metadata={
-                "token_usage": TokenUsage(input_tokens=100, output_tokens=50)
-            },
+            metadata={"token_usage": TokenUsage(input_tokens=100, output_tokens=50)},
         )
         metric_result = metric.compute(result)
 
@@ -473,6 +471,7 @@ class TestSemanticSimilarity:
         # Import here to handle optional dependency
         try:
             from evalops.core.metrics import SemanticSimilarity
+
             return SemanticSimilarity(threshold=0.7)
         except ImportError:
             pytest.skip("sentence-transformers not installed")

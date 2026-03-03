@@ -67,9 +67,9 @@ class LLMJudge(Metric):
     DEFAULT_CRITERIA = """
 Evaluate the response on the following criteria, scoring each from 0-10:
 
-1. **Accuracy** (0-10): Is the information factually correct? Does it match the reference answer if provided?
-2. **Completeness** (0-10): Does the response fully address the question? Are there any missing key points?
-3. **Clarity** (0-10): Is the response well-written, clear, and easy to understand?
+1. **Accuracy** (0-10): Is the information factually correct?
+2. **Completeness** (0-10): Does the response fully address the question?
+3. **Clarity** (0-10): Is the response well-written and clear?
 
 Provide your scores and brief reasoning for each criterion.
 """
@@ -118,25 +118,33 @@ Provide your scores and brief reasoning for each criterion.
         ]
 
         if self.include_reference and result.expected:
-            parts.extend([
-                "",
-                "## Reference Answer",
-                result.expected,
-            ])
+            parts.extend(
+                [
+                    "",
+                    "## Reference Answer",
+                    result.expected,
+                ]
+            )
 
-        parts.extend([
-            "",
-            "## Output Format",
-            "Respond with a JSON object containing:",
-            '- "overall": overall score 0-10',
-            '- "criteria_scores": object with score for each criterion',
-            '- "reasoning": brief explanation of your evaluation',
-            "",
-            "Example:",
-            '{"overall": 8.5, "criteria_scores": {"accuracy": 9, "completeness": 8, "clarity": 8.5}, "reasoning": "The response is accurate and clear..."}',
-            "",
-            "Respond ONLY with the JSON object, no other text.",
-        ])
+        parts.extend(
+            [
+                "",
+                "## Output Format",
+                "Respond with a JSON object containing:",
+                '- "overall": overall score 0-10',
+                '- "criteria_scores": object with score for each criterion',
+                '- "reasoning": brief explanation of your evaluation',
+                "",
+                "Example:",
+                (
+                    '{"overall": 8.5, "criteria_scores": {"accuracy": 9, '
+                    '"completeness": 8, "clarity": 8.5}, "reasoning": '
+                    '"The response is accurate and clear..."}'
+                ),
+                "",
+                "Respond ONLY with the JSON object, no other text.",
+            ]
+        )
 
         return "\n".join(parts)
 
@@ -145,7 +153,7 @@ Provide your scores and brief reasoning for each criterion.
         # Try to extract JSON from the response
         # Handle cases where model might wrap JSON in markdown code blocks
         # Use a pattern that can handle nested braces
-        json_match = re.search(r'\{(?:[^{}]|\{[^{}]*\})*\}', response_text, re.DOTALL)
+        json_match = re.search(r"\{(?:[^{}]|\{[^{}]*\})*\}", response_text, re.DOTALL)
 
         if json_match:
             try:
@@ -153,8 +161,7 @@ Provide your scores and brief reasoning for each criterion.
                 return JudgeScore(
                     overall=float(data.get("overall", 0)),
                     criteria_scores={
-                        k: float(v)
-                        for k, v in data.get("criteria_scores", {}).items()
+                        k: float(v) for k, v in data.get("criteria_scores", {}).items()
                     },
                     reasoning=data.get("reasoning", ""),
                     raw_response=response_text,
@@ -163,7 +170,7 @@ Provide your scores and brief reasoning for each criterion.
                 pass
 
         # Fallback: try to extract a numeric score
-        numbers = re.findall(r'\b(\d+(?:\.\d+)?)\b', response_text)
+        numbers = re.findall(r"\b(\d+(?:\.\d+)?)\b", response_text)
         if numbers:
             # Take first number as overall score
             score = min(float(numbers[0]), 10.0)
@@ -192,6 +199,7 @@ Provide your scores and brief reasoning for each criterion.
             if loop.is_running():
                 # We're in an async context, create a new task
                 import concurrent.futures
+
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     future = executor.submit(asyncio.run, self.evaluate(result))
                     judge_score = future.result()

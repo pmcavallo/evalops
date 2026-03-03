@@ -6,6 +6,6 @@ This module will provide command-line interface for:
 - Viewing results
 """
 
-from evalops.cli import regression, main
+from evalops.cli import main, regression
 
 __all__ = ["regression", "main"]

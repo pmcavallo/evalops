@@ -22,9 +22,7 @@ class TestEvalRunner:
         return EvalRunner()
 
     @pytest.mark.asyncio
-    async def test_run_case_sync_target(
-        self, runner: EvalRunner, sample_case: EvalCase
-    ) -> None:
+    async def test_run_case_sync_target(self, runner: EvalRunner, sample_case: EvalCase) -> None:
         """Test running a case with a sync target function."""
 
         def echo(input: str) -> str:
@@ -39,9 +37,7 @@ class TestEvalRunner:
         assert result.latency_ms > 0
 
     @pytest.mark.asyncio
-    async def test_run_case_async_target(
-        self, runner: EvalRunner, sample_case: EvalCase
-    ) -> None:
+    async def test_run_case_async_target(self, runner: EvalRunner, sample_case: EvalCase) -> None:
         """Test running a case with an async target function."""
 
         async def async_echo(input: str) -> str:
@@ -53,9 +49,7 @@ class TestEvalRunner:
         assert result.output == "Async: What is 2 + 2?"
 
     @pytest.mark.asyncio
-    async def test_run_case_error_handling(
-        self, runner: EvalRunner, sample_case: EvalCase
-    ) -> None:
+    async def test_run_case_error_handling(self, runner: EvalRunner, sample_case: EvalCase) -> None:
         """Test that errors in target are captured gracefully."""
 
         def failing_target(input: str) -> str:
@@ -70,9 +64,7 @@ class TestEvalRunner:
         assert result.output is None
 
     @pytest.mark.asyncio
-    async def test_run_dataset(
-        self, runner: EvalRunner, sample_dataset: EvalDataset
-    ) -> None:
+    async def test_run_dataset(self, runner: EvalRunner, sample_dataset: EvalDataset) -> None:
         """Test running a full dataset."""
 
         def echo(input: str) -> str:
@@ -115,14 +107,10 @@ class TestEvalResult:
 
     def test_success_property(self) -> None:
         """Test the success property."""
-        success_result = EvalResult(
-            case_id="1", input="test", output="result"
-        )
+        success_result = EvalResult(case_id="1", input="test", output="result")
         assert success_result.success is True
 
-        failed_result = EvalResult(
-            case_id="2", input="test", error="failed"
-        )
+        failed_result = EvalResult(case_id="2", input="test", error="failed")
         assert failed_result.success is False
 
     def test_metrics_passed_no_metrics(self) -> None:

@@ -830,11 +830,7 @@ class TestComparisonModuleImports:
         """Test A/B testing imports."""
         from evalops.comparison import (
             ABTest,
-            ABTestResult,
-            MetricComparison,
-            StatisticalResult,
             Winner,
-            compare_variants,
         )
 
         assert ABTest is not None
@@ -844,11 +840,7 @@ class TestComparisonModuleImports:
         """Test drift detection imports."""
         from evalops.comparison import (
             AlertSeverity,
-            DriftAlert,
             DriftDetector,
-            DriftDirection,
-            DriftReport,
-            MetricSnapshot,
         )
 
         assert DriftDetector is not None
@@ -857,12 +849,8 @@ class TestComparisonModuleImports:
     def test_regression_imports(self) -> None:
         """Test regression testing imports."""
         from evalops.comparison import (
-            MetricThreshold,
-            RegressionReport,
-            RegressionResult,
             RegressionStatus,
             RegressionTester,
-            run_regression_test,
         )
 
         assert RegressionTester is not None

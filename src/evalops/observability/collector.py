@@ -339,9 +339,7 @@ class MetricsCollector:
         return {
             "collection_period": {
                 "started_at": self.started_at.isoformat(),
-                "last_run_at": (
-                    self.last_run_at.isoformat() if self.last_run_at else None
-                ),
+                "last_run_at": (self.last_run_at.isoformat() if self.last_run_at else None),
                 "exported_at": now.isoformat(),
             },
             "runs": {

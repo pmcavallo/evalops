@@ -141,12 +141,8 @@ class DriftReport:
             "id": self.id,
             "drift_detected": self.drift_detected,
             "alerts": [a.to_dict() for a in self.alerts],
-            "baseline_metrics": {
-                k: round(v, 4) for k, v in self.baseline_metrics.items()
-            },
-            "current_metrics": {
-                k: round(v, 4) for k, v in self.current_metrics.items()
-            },
+            "baseline_metrics": {k: round(v, 4) for k, v in self.baseline_metrics.items()},
+            "current_metrics": {k: round(v, 4) for k, v in self.current_metrics.items()},
             "metric_trends": {k: v.value for k, v in self.metric_trends.items()},
             "overall_health": self.overall_health,
             "snapshot_count": self.snapshot_count,

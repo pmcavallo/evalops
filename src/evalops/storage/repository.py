@@ -118,9 +118,7 @@ class EvalRepository:
             # Save individual case results
             if save_cases:
                 for eval_result in run_result.results:
-                    case_record = EvalCaseRecord.from_eval_result(
-                        eval_result, run_id=run_result.id
-                    )
+                    case_record = EvalCaseRecord.from_eval_result(eval_result, run_id=run_result.id)
                     session.add(case_record)
 
             session.commit()
@@ -140,9 +138,7 @@ class EvalRepository:
             stmt = select(EvalRunRecord).where(EvalRunRecord.id == run_id)
             return session.scalar(stmt)
 
-    def get_run_with_cases(
-        self, run_id: str
-    ) -> tuple[EvalRunRecord | None, list[EvalCaseRecord]]:
+    def get_run_with_cases(self, run_id: str) -> tuple[EvalRunRecord | None, list[EvalCaseRecord]]:
         """Retrieve a run with all its case results.
 
         Args:
@@ -274,9 +270,7 @@ class EvalRepository:
         Returns:
             List of dicts with run summaries ordered by date.
         """
-        start_date = datetime.now(timezone.utc).replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
+        start_date = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         from datetime import timedelta
 
         start_date = start_date - timedelta(days=days)
@@ -398,22 +392,17 @@ class EvalRepository:
         with self.get_session() as session:
             # Deactivate existing baselines for this dataset
             if deactivate_existing:
-                update_stmt = (
-                    select(BaselineRecord)
-                    .where(
-                        and_(
-                            BaselineRecord.dataset_name == run_result.dataset_name,
-                            BaselineRecord.is_active.is_(True),
-                        )
+                update_stmt = select(BaselineRecord).where(
+                    and_(
+                        BaselineRecord.dataset_name == run_result.dataset_name,
+                        BaselineRecord.is_active.is_(True),
                     )
                 )
                 for baseline in session.scalars(update_stmt):
                     baseline.is_active = False
 
             # Create new baseline
-            baseline = BaselineRecord.from_run_result(
-                run_result, name=name, metadata=metadata
-            )
+            baseline = BaselineRecord.from_run_result(run_result, name=name, metadata=metadata)
             session.add(baseline)
             session.commit()
             session.refresh(baseline)

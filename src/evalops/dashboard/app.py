@@ -14,13 +14,12 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-import streamlit as st
 import plotly.graph_objects as go
+import streamlit as st
 from plotly.subplots import make_subplots
 
 from evalops import __version__
 from evalops.storage import DatabaseManager, EvalRepository
-
 
 # ============================================================================
 # Configuration & Session State
@@ -72,7 +71,8 @@ def reconnect_database(url: str) -> bool:
 
 def apply_custom_css() -> None:
     """Apply custom CSS styling."""
-    st.markdown("""
+    st.markdown(
+        """
     <style>
     .metric-card {
         background-color: #f0f2f6;
@@ -101,7 +101,9 @@ def apply_custom_css() -> None:
         background-color: #f8f9fa;
     }
     </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
 
 # ============================================================================
@@ -168,7 +170,9 @@ def render_overview_page(repo: EvalRepository) -> None:
                     with col_a:
                         run_name = run.name or run.dataset_name
                         st.markdown(f"**{run_name}**")
-                    started_at_str = run.started_at.strftime("%Y-%m-%d %H:%M") if run.started_at else "N/A"
+                    started_at_str = (
+                        run.started_at.strftime("%Y-%m-%d %H:%M") if run.started_at else "N/A"
+                    )
                     st.caption(f"{started_at_str}")
                     with col_b:
                         st.markdown(f"{status_icon} {run.pass_rate:.0%}")
@@ -191,14 +195,16 @@ def render_overview_page(repo: EvalRepository) -> None:
             pass_rates = [h.get("pass_rate", 0) * 100 for h in history]
 
             fig = go.Figure()
-            fig.add_trace(go.Scatter(
-                x=dates,
-                y=pass_rates,
-                mode='lines+markers',
-                name='Pass Rate',
-                line=dict(color='#1f77b4', width=2),
-                marker=dict(size=6),
-            ))
+            fig.add_trace(
+                go.Scatter(
+                    x=dates,
+                    y=pass_rates,
+                    mode="lines+markers",
+                    name="Pass Rate",
+                    line=dict(color="#1f77b4", width=2),
+                    marker=dict(size=6),
+                )
+            )
             fig.update_layout(
                 xaxis_title="Date",
                 yaxis_title="Pass Rate (%)",
@@ -234,13 +240,15 @@ def render_overview_page(repo: EvalRepository) -> None:
         # Create DataFrame-like display
         rows = []
         for name, data in dataset_stats.items():
-            rows.append({
-                "Dataset": name,
-                "Runs": data["runs"],
-                "Cases": data["total_cases"],
-                "Avg Pass Rate": f"{data['total_pass_rate'] / data['runs']:.1%}",
-                "Avg Latency": f"{data['total_latency'] / data['runs']:.0f}ms",
-            })
+            rows.append(
+                {
+                    "Dataset": name,
+                    "Runs": data["runs"],
+                    "Cases": data["total_cases"],
+                    "Avg Pass Rate": f"{data['total_pass_rate'] / data['runs']:.1%}",
+                    "Avg Latency": f"{data['total_latency'] / data['runs']:.0f}ms",
+                }
+            )
 
         st.dataframe(rows, use_container_width=True, hide_index=True)
 
@@ -433,13 +441,15 @@ def render_run_detail_page(repo: EvalRepository) -> None:
             "#28a745" if run.metrics_summary[m].get("passed", False) else "#dc3545"
             for m in metric_names
         ]
-        fig = go.Figure(data=[
-            go.Bar(
-                x=metric_names,
-                y=metric_scores,
-                marker_color=marker_colors,
-            )
-        ])
+        fig = go.Figure(
+            data=[
+                go.Bar(
+                    x=metric_names,
+                    y=metric_scores,
+                    marker_color=marker_colors,
+                )
+            ]
+        )
         fig.update_layout(
             xaxis_title="Metric",
             yaxis_title="Score (%)",
@@ -464,12 +474,16 @@ def render_run_detail_page(repo: EvalRepository) -> None:
         col1, col2 = st.columns([1, 2])
 
         with col1:
-            fig = go.Figure(data=[go.Pie(
-                labels=['Passed', 'Failed'],
-                values=[passed_count, failed_count],
-                marker_colors=['#28a745', '#dc3545'],
-                hole=0.4,
-            )])
+            fig = go.Figure(
+                data=[
+                    go.Pie(
+                        labels=["Passed", "Failed"],
+                        values=[passed_count, failed_count],
+                        marker_colors=["#28a745", "#dc3545"],
+                        hole=0.4,
+                    )
+                ]
+            )
             fig.update_layout(
                 height=250,
                 margin=dict(l=20, r=20, t=20, b=20),
@@ -480,11 +494,15 @@ def render_run_detail_page(repo: EvalRepository) -> None:
         with col2:
             # Latency distribution
             latencies = [c.latency_ms for c in cases]
-            fig = go.Figure(data=[go.Histogram(
-                x=latencies,
-                nbinsx=20,
-                marker_color='#1f77b4',
-            )])
+            fig = go.Figure(
+                data=[
+                    go.Histogram(
+                        x=latencies,
+                        nbinsx=20,
+                        marker_color="#1f77b4",
+                    )
+                ]
+            )
             fig.update_layout(
                 xaxis_title="Latency (ms)",
                 yaxis_title="Count",
@@ -647,12 +665,14 @@ def render_comparison_page(repo: EvalRepository) -> None:
             scores_a.append(score_a * 100 if score_a <= 1 else score_a)
             scores_b.append(score_b * 100 if score_b <= 1 else score_b)
 
-        fig = go.Figure(data=[
-            go.Bar(name='Variant A', x=metric_names, y=scores_a, marker_color='#1f77b4'),
-            go.Bar(name='Variant B', x=metric_names, y=scores_b, marker_color='#ff7f0e'),
-        ])
+        fig = go.Figure(
+            data=[
+                go.Bar(name="Variant A", x=metric_names, y=scores_a, marker_color="#1f77b4"),
+                go.Bar(name="Variant B", x=metric_names, y=scores_b, marker_color="#ff7f0e"),
+            ]
+        )
         fig.update_layout(
-            barmode='group',
+            barmode="group",
             xaxis_title="Metric",
             yaxis_title="Score (%)",
             height=400,
@@ -680,7 +700,7 @@ def render_comparison_page(repo: EvalRepository) -> None:
             go.Histogram(x=latencies_b, name="Variant B", opacity=0.7, marker_color="#ff7f0e")
         )
         fig.update_layout(
-            barmode='overlay',
+            barmode="overlay",
             xaxis_title="Latency (ms)",
             yaxis_title="Count",
             height=300,
@@ -814,13 +834,15 @@ def render_drift_monitor_page(repo: EvalRepository) -> None:
     fig = make_subplots(rows=1, cols=1)
 
     # Current values
-    fig.add_trace(go.Scatter(
-        x=timestamps,
-        y=pass_rates,
-        mode='lines+markers',
-        name='Current Pass Rate',
-        line=dict(color='#1f77b4', width=2),
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=timestamps,
+            y=pass_rates,
+            mode="lines+markers",
+            name="Current Pass Rate",
+            line=dict(color="#1f77b4", width=2),
+        )
+    )
 
     # Baseline line
     fig.add_hline(
@@ -875,13 +897,15 @@ def render_drift_monitor_page(repo: EvalRepository) -> None:
 
             change = ((current_val - baseline_val) / baseline_val * 100) if baseline_val != 0 else 0
 
-            comparison_data.append({
-                "Metric": metric,
-                "Baseline": f"{baseline_val:.3f}",
-                "Current": f"{current_val:.3f}",
-                "Change": f"{change:+.1f}%",
-                "Trend": trend_icon,
-            })
+            comparison_data.append(
+                {
+                    "Metric": metric,
+                    "Baseline": f"{baseline_val:.3f}",
+                    "Current": f"{current_val:.3f}",
+                    "Change": f"{change:+.1f}%",
+                    "Trend": trend_icon,
+                }
+            )
 
         st.dataframe(comparison_data, use_container_width=True, hide_index=True)
 
@@ -932,18 +956,36 @@ def render_guide_page() -> None:
     st.subheader("Dashboard Pages")
 
     pages_info = [
-        ("**Overview**", "High-level summary of all evaluation runs. Shows total runs, cases, "
-         "average pass rate, and trends over time. Start here to get the big picture."),
-        ("**Run Explorer**", "Browse and filter individual evaluation runs. Filter by dataset, "
-         "time range, or minimum pass rate. Click 'Details' to drill into any run."),
-        ("**Run Detail**", "Deep dive into a single evaluation run. See metrics breakdown, "
-         "pass/fail distribution, latency histogram, and individual case results."),
-        ("**Comparison**", "A/B testing interface. Compare two runs side-by-side to determine "
-         "which prompt, model, or configuration performs better."),
-        ("**Drift Monitor**", "Track quality degradation over time. Compare current performance "
-         "against saved baselines. Alerts when metrics drop below warning/critical thresholds."),
-        ("**Settings**", "Configure database connection. Switch between SQLite (local) or "
-         "PostgreSQL (production) databases."),
+        (
+            "**Overview**",
+            "High-level summary of all evaluation runs. Shows total runs, cases, "
+            "average pass rate, and trends over time. Start here to get the big picture.",
+        ),
+        (
+            "**Run Explorer**",
+            "Browse and filter individual evaluation runs. Filter by dataset, "
+            "time range, or minimum pass rate. Click 'Details' to drill into any run.",
+        ),
+        (
+            "**Run Detail**",
+            "Deep dive into a single evaluation run. See metrics breakdown, "
+            "pass/fail distribution, latency histogram, and individual case results.",
+        ),
+        (
+            "**Comparison**",
+            "A/B testing interface. Compare two runs side-by-side to determine "
+            "which prompt, model, or configuration performs better.",
+        ),
+        (
+            "**Drift Monitor**",
+            "Track quality degradation over time. Compare current performance "
+            "against saved baselines. Alerts when metrics drop below warning/critical thresholds.",
+        ),
+        (
+            "**Settings**",
+            "Configure database connection. Switch between SQLite (local) or "
+            "PostgreSQL (production) databases.",
+        ),
     ]
 
     for page_name, description in pages_info:
@@ -955,16 +997,31 @@ def render_guide_page() -> None:
     st.subheader("Key Metrics Explained")
 
     metrics_info = [
-        ("**Pass Rate**", "Percentage of test cases that met all metric thresholds. "
-         "A case passes only if ALL configured metrics (accuracy, similarity, etc.) pass."),
-        ("**Success Rate**", "Percentage of test cases that completed without errors. "
-         "A case can succeed (no errors) but still fail metrics."),
-        ("**Semantic Similarity**", "BERT-based comparison between actual and expected outputs. "
-         "Scores 0-1 where 1.0 = identical meaning. Typically 0.8+ indicates a good match."),
-        ("**Latency**", "Time taken for each evaluation case in milliseconds. "
-         "Useful for identifying performance regressions."),
-        ("**Drift**", "Change in metrics compared to a saved baseline. "
-         "Warning at -5%, Critical at -10% by default."),
+        (
+            "**Pass Rate**",
+            "Percentage of test cases that met all metric thresholds. "
+            "A case passes only if ALL configured metrics (accuracy, similarity, etc.) pass.",
+        ),
+        (
+            "**Success Rate**",
+            "Percentage of test cases that completed without errors. "
+            "A case can succeed (no errors) but still fail metrics.",
+        ),
+        (
+            "**Semantic Similarity**",
+            "BERT-based comparison between actual and expected outputs. "
+            "Scores 0-1 where 1.0 = identical meaning. Typically 0.8+ indicates a good match.",
+        ),
+        (
+            "**Latency**",
+            "Time taken for each evaluation case in milliseconds. "
+            "Useful for identifying performance regressions.",
+        ),
+        (
+            "**Drift**",
+            "Change in metrics compared to a saved baseline. "
+            "Warning at -5%, Critical at -10% by default.",
+        ),
     ]
 
     for metric_name, description in metrics_info:
@@ -1009,7 +1066,8 @@ def render_guide_page() -> None:
     # Quick start
     st.subheader("Quick Start (Production Use)")
 
-    st.code("""
+    st.code(
+        """
 # Install
 pip install evalops
 
@@ -1032,7 +1090,9 @@ repo.save_run(result, name="nightly_eval", tags=["production"])
 
 # Launch dashboard
 # evalops-dashboard
-""", language="python")
+""",
+        language="python",
+    )
 
     st.markdown("---")
     st.caption("Built by Paulo Cavallo | [GitHub](https://github.com/pmcavallo/evalops)")

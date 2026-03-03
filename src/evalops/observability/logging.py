@@ -160,13 +160,15 @@ def configure_logging(
         processors.append(add_timestamp)
 
     if include_caller:
-        processors.append(structlog.processors.CallsiteParameterAdder(
-            parameters=[
-                structlog.processors.CallsiteParameter.FILENAME,
-                structlog.processors.CallsiteParameter.LINENO,
-                structlog.processors.CallsiteParameter.FUNC_NAME,
-            ]
-        ))
+        processors.append(
+            structlog.processors.CallsiteParameterAdder(
+                parameters=[
+                    structlog.processors.CallsiteParameter.FILENAME,
+                    structlog.processors.CallsiteParameter.LINENO,
+                    structlog.processors.CallsiteParameter.FUNC_NAME,
+                ]
+            )
+        )
 
     processors.append(structlog.stdlib.ProcessorFormatter.wrap_for_formatter)
 
