@@ -1,0 +1,13 @@
+{
+  "name": "Regression Test Dataset",
+  "cases": [
+    {
+      "input": "Hello",
+      "expected": "Hello"
+    },
+    {
+      "input": "World",
+      "expected": "World"
+    }
+  ]
+}
