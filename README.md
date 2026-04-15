@@ -7,12 +7,6 @@ Production-grade evaluation framework for LLM applications.
 [![Docker](https://img.shields.io/badge/docker-pmcavallo%2Fevalops-blue.svg)](https://hub.docker.com/r/pmcavallo/evalops)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Live Demo
-
-**Dashboard:** [http://44.213.248.8:8501](http://44.213.248.8:8501)
-
-Explore 24 evaluation runs with 470 test cases across Q&A, classification, and summarization tasks.
-
 ## The Problem
 
 Traditional software testing doesn't work for LLMs. Outputs are non-deterministic - a correct answer today might be phrased differently tomorrow. Simple string matching fails, and manual review doesn't scale.
