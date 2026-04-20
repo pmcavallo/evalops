@@ -318,42 +318,45 @@ class EvalRunner:
             )
             trace_context.__enter__()
 
-        try:
-            for case in dataset:
-                # Log case start
-                if self.logger:
-                    self.logger.case_started(
+        async def _run_case_internal(case: EvalCase) -> EvalResult:
+            # Log case start
+            if self.logger:
+                self.logger.case_started(
+                    case_id=case.id,
+                    input_preview=case.input[:100] if case.input else None,
+                )
+
+            result = await self.run_case(case, target, metrics)
+
+            # Log case completion
+            if self.logger:
+                if result.success:
+                    self.logger.case_completed(
                         case_id=case.id,
-                        input_preview=case.input[:100] if case.input else None,
-                    )
-
-                result = await self.run_case(case, target, metrics)
-                results.append(result)
-
-                # Log case completion
-                if self.logger:
-                    if result.success:
-                        self.logger.case_completed(
-                            case_id=case.id,
-                            latency_ms=result.latency_ms,
-                            metrics_passed=result.metrics_passed,
-                            metric_results=result.metric_results,
-                        )
-                    else:
-                        self.logger.case_failed(
-                            case_id=case.id,
-                            error=result.error or "Unknown error",
-                            latency_ms=result.latency_ms,
-                        )
-
-                # Record metrics
-                if self.collector:
-                    self.collector.record_case_result(
-                        success=result.success,
                         latency_ms=result.latency_ms,
                         metrics_passed=result.metrics_passed,
                         metric_results=result.metric_results,
                     )
+                else:
+                    self.logger.case_failed(
+                        case_id=case.id,
+                        error=result.error or "Unknown error",
+                        latency_ms=result.latency_ms,
+                    )
+
+            # Record metrics
+            if self.collector:
+                self.collector.record_case_result(
+                    success=result.success,
+                    latency_ms=result.latency_ms,
+                    metrics_passed=result.metrics_passed,
+                    metric_results=result.metric_results,
+                )
+
+            return result
+
+        try:
+            results = await asyncio.gather(*(_run_case_internal(case) for case in dataset))
 
         finally:
             if trace_context:

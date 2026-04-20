@@ -405,7 +405,7 @@ class EvalRepository:
                     .where(
                         and_(
                             BaselineRecord.dataset_name == run_result.dataset_name,
-                            BaselineRecord.is_active == True,
+                            BaselineRecord.is_active.is_(True),
                         )
                     )
                 )
@@ -451,7 +451,7 @@ class EvalRepository:
                 update_stmt = select(BaselineRecord).where(
                     and_(
                         BaselineRecord.dataset_name == dataset_name,
-                        BaselineRecord.is_active == True,
+                        BaselineRecord.is_active.is_(True),
                     )
                 )
                 for baseline in session.scalars(update_stmt):
@@ -496,7 +496,7 @@ class EvalRepository:
             if dataset_name is not None:
                 conditions = [BaselineRecord.dataset_name == dataset_name]
                 if active_only:
-                    conditions.append(BaselineRecord.is_active == True)
+                    conditions.append(BaselineRecord.is_active.is_(True))
 
                 stmt = (
                     select(BaselineRecord)
@@ -531,7 +531,7 @@ class EvalRepository:
             if dataset_name is not None:
                 conditions.append(BaselineRecord.dataset_name == dataset_name)
             if active_only:
-                conditions.append(BaselineRecord.is_active == True)
+                conditions.append(BaselineRecord.is_active.is_(True))
 
             if conditions:
                 stmt = stmt.where(and_(*conditions))
@@ -585,9 +585,9 @@ class EvalRepository:
             stmt = select(EvalCaseRecord).where(EvalCaseRecord.run_id == run_id)
 
             if passed_only:
-                stmt = stmt.where(EvalCaseRecord.metrics_passed == True)
+                stmt = stmt.where(EvalCaseRecord.metrics_passed.is_(True))
             elif failed_only:
-                stmt = stmt.where(EvalCaseRecord.metrics_passed == False)
+                stmt = stmt.where(EvalCaseRecord.metrics_passed.is_(False))
 
             stmt = stmt.order_by(EvalCaseRecord.created_at).limit(limit)
             return list(session.scalars(stmt))
@@ -614,7 +614,7 @@ class EvalRepository:
             stmt = (
                 select(EvalCaseRecord)
                 .join(EvalRunRecord)
-                .where(EvalCaseRecord.metrics_passed == False)
+                .where(EvalCaseRecord.metrics_passed.is_(False))
             )
 
             conditions = []
