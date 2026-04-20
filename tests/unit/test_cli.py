@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import tempfile
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from typer.testing import CliRunner
@@ -265,7 +265,6 @@ class TestDriftCommand:
 
     def test_drift_no_history(self):
         """Test drift command with no recent runs."""
-        from datetime import datetime, timezone
 
         with patch("evalops.cli.main.get_repository") as mock_get_repo:
             mock_baseline = MagicMock()
@@ -284,7 +283,6 @@ class TestDriftCommand:
 
     def test_drift_healthy(self):
         """Test drift command with healthy metrics."""
-        from datetime import datetime, timezone
 
         with patch("evalops.cli.main.get_repository") as mock_get_repo:
             mock_baseline = MagicMock()
@@ -371,7 +369,7 @@ class TestRunCommand:
                     mock_eval.return_value = mock_result
 
                     # Use a simple lambda as target
-                    result = runner.invoke(
+                    runner.invoke(
                         app,
                         [
                             "run",

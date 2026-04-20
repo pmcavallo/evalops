@@ -16,8 +16,8 @@ import pytest
 
 # Check for optional dependencies
 try:
-    import streamlit
     import plotly
+    import streamlit
     DASHBOARD_DEPS_AVAILABLE = True
 except ImportError:
     DASHBOARD_DEPS_AVAILABLE = False
@@ -39,7 +39,7 @@ class TestSessionStateInitialization:
 
             init_session_state()
 
-            assert mock_state["database_url"] == "sqlite:///evalops.db"
+            assert mock_state["database_url"] == "sqlite:///evalops_demo.db"
             assert mock_state["repository"] is None
             assert mock_state["selected_run_id"] is None
             assert mock_state["page"] == "Overview"
@@ -69,7 +69,7 @@ class TestRepositoryConnection:
             with patch("evalops.dashboard.app.EvalRepository", return_value=mock_repo) as MockRepo:
                 from evalops.dashboard.app import get_repository
 
-                result = get_repository()
+                get_repository()
 
                 MockRepo.assert_called_once_with("sqlite:///:memory:")
                 mock_repo.initialize.assert_called_once()
@@ -449,6 +449,7 @@ class TestDashboardCLI:
     def test_cli_builds_correct_command(self):
         """Test that CLI builds the correct streamlit command."""
         from pathlib import Path
+
         from evalops.dashboard import cli
 
         app_path = Path(cli.__file__).parent / "app.py"

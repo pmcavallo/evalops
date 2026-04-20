@@ -1,8 +1,6 @@
 """Unit tests for the observability module."""
 
-import json
-from io import StringIO
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -16,13 +14,9 @@ from evalops.observability.logging import (
     EvalLogger,
     LogContext,
     configure_logging,
-    get_case_id,
     get_dataset_id,
-    get_logger,
     get_request_id,
     get_run_id,
-    set_case_id,
-    set_dataset_id,
     set_request_id,
     set_run_id,
 )
