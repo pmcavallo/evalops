@@ -6,7 +6,6 @@ individual case results, and baselines for regression testing.
 
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
@@ -78,22 +77,16 @@ class EvalRunRecord(Base):
     total_latency_ms: Mapped[float] = mapped_column(Float, default=0.0)
     metrics_summary: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     tags: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
-    metadata_json: Mapped[dict[str, Any] | None] = mapped_column(
-        "metadata", JSON, nullable=True
-    )
-    started_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), index=True
-    )
-    completed_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    metadata_json: Mapped[dict[str, Any] | None] = mapped_column("metadata", JSON, nullable=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
     )
 
     # Relationships
-    cases: Mapped[list["EvalCaseRecord"]] = relationship(
+    cases: Mapped[list[EvalCaseRecord]] = relationship(
         "EvalCaseRecord",
         back_populates="run",
         cascade="all, delete-orphan",
@@ -134,7 +127,7 @@ class EvalRunRecord(Base):
         name: str | None = None,
         tags: list[str] | None = None,
         metadata: dict[str, Any] | None = None,
-    ) -> "EvalRunRecord":
+    ) -> EvalRunRecord:
         """Create a record from an EvalRunResult.
 
         Args:
@@ -204,16 +197,14 @@ class EvalCaseRecord(Base):
     metrics_passed: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
     metric_results: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
-    metadata_json: Mapped[dict[str, Any] | None] = mapped_column(
-        "metadata", JSON, nullable=True
-    )
+    metadata_json: Mapped[dict[str, Any] | None] = mapped_column("metadata", JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
     )
 
     # Relationships
-    run: Mapped["EvalRunRecord"] = relationship("EvalRunRecord", back_populates="cases")
+    run: Mapped[EvalRunRecord] = relationship("EvalRunRecord", back_populates="cases")
 
     def to_dict(self) -> dict[str, Any]:
         """Convert record to dictionary."""
@@ -235,7 +226,7 @@ class EvalCaseRecord(Base):
         }
 
     @classmethod
-    def from_eval_result(cls, eval_result: Any, run_id: str) -> "EvalCaseRecord":
+    def from_eval_result(cls, eval_result: Any, run_id: str) -> EvalCaseRecord:
         """Create a record from an EvalResult.
 
         Args:
@@ -283,9 +274,7 @@ class BaselineRecord(Base):
 
     __tablename__ = "baselines"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     name: Mapped[str] = mapped_column(String(255), index=True)
     dataset_name: Mapped[str] = mapped_column(String(255), index=True)
     source_run_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
@@ -297,17 +286,11 @@ class BaselineRecord(Base):
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
     )
-    expires_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    metadata_json: Mapped[dict[str, Any] | None] = mapped_column(
-        "metadata", JSON, nullable=True
-    )
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    metadata_json: Mapped[dict[str, Any] | None] = mapped_column("metadata", JSON, nullable=True)
 
     # Index for finding active baseline for a dataset
-    __table_args__ = (
-        Index("ix_baselines_dataset_active", "dataset_name", "is_active"),
-    )
+    __table_args__ = (Index("ix_baselines_dataset_active", "dataset_name", "is_active"),)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert record to dictionary."""
@@ -332,7 +315,7 @@ class BaselineRecord(Base):
         name: str,
         is_active: bool = True,
         metadata: dict[str, Any] | None = None,
-    ) -> "BaselineRecord":
+    ) -> BaselineRecord:
         """Create a baseline from an EvalRunResult.
 
         Args:

@@ -22,9 +22,7 @@ Example:
 
 from __future__ import annotations
 
-import asyncio
 import importlib
-import time
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -35,6 +33,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from evalops import __version__
 from evalops.api.schemas import (
+    AlertSeverity,
     BaselineListResponse,
     BaselineRequest,
     BaselineResponse,
@@ -59,7 +58,6 @@ from evalops.api.schemas import (
     RunResponse,
     RunStats,
     RunSummary,
-    AlertSeverity,
 )
 from evalops.storage import DatabaseManager, EvalRepository
 

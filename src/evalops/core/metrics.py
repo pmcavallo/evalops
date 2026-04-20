@@ -8,9 +8,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from evalops.core.runner import EvalResult
+
+if TYPE_CHECKING:
+    from sentence_transformers import SentenceTransformer
 
 
 @dataclass
@@ -389,10 +392,9 @@ class TokenCost(Metric):
             estimated = False
 
         total_tokens = input_tokens + output_tokens
-        cost = (
-            (input_tokens / 1000) * self.input_cost_per_1k
-            + (output_tokens / 1000) * self.output_cost_per_1k
-        )
+        cost = (input_tokens / 1000) * self.input_cost_per_1k + (
+            output_tokens / 1000
+        ) * self.output_cost_per_1k
 
         passed = True
         if self.max_tokens_per_call is not None:
@@ -464,7 +466,7 @@ class SemanticSimilarity(Metric):
     """
 
     # Lazy-loaded model instance (class-level cache)
-    _model_cache: dict[str, "SentenceTransformer"] = {}
+    _model_cache: dict[str, SentenceTransformer] = {}
 
     def __init__(
         self,
@@ -483,13 +485,13 @@ class SemanticSimilarity(Metric):
         self.model_name = model_name
         self.threshold = threshold
         self.device = device
-        self._model: "SentenceTransformer | None" = None
+        self._model: SentenceTransformer | None = None
 
     @property
     def name(self) -> str:
         return "semantic_similarity"
 
-    def _get_model(self) -> "SentenceTransformer":
+    def _get_model(self) -> SentenceTransformer:
         """Lazy-load the sentence transformer model."""
         if self._model is not None:
             return self._model

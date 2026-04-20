@@ -1,21 +1,15 @@
 """Unit tests for the storage module."""
 
-import tempfile
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from evalops.storage.migrations import CURRENT_VERSION, DatabaseManager
 from evalops.storage.models import (
-    Base,
     BaselineRecord,
     EvalCaseRecord,
     EvalRunRecord,
-    SchemaVersion,
-    get_engine,
-    get_session_factory,
 )
 from evalops.storage.repository import EvalRepository
 
@@ -255,6 +249,32 @@ class TestDatabaseManager:
         health = manager.check_health()
         assert "eval_runs" not in health.get("tables", [])
 
+    def test_safe_url(self) -> None:
+        """Test URL password masking."""
+        with (
+            patch("evalops.storage.migrations.get_engine"),
+            patch("evalops.storage.migrations.get_session_factory"),
+        ):
+            # SQLite (no password)
+            manager = DatabaseManager("sqlite:///evalops.db")
+            assert manager._safe_url() == "sqlite:///evalops.db"
+
+            # PostgreSQL with password
+            manager = DatabaseManager("postgresql://synth_user:synth_pass@localhost/synth_db")
+            assert manager._safe_url() == "postgresql://synth_user:***@localhost/synth_db"
+
+            # MySQL with password and port
+            manager = DatabaseManager("mysql+pymysql://admin:secret123@127.0.0.1:3306/testdb")
+            assert manager._safe_url() == "mysql+pymysql://admin:***@127.0.0.1:3306/testdb"
+
+            # User but no password
+            manager = DatabaseManager("postgresql://synth_user@localhost/synth_db")
+            assert manager._safe_url() == "postgresql://synth_user@localhost/synth_db"
+
+            # Non-URL string
+            manager = DatabaseManager("not-a-url")
+            assert manager._safe_url() == "not-a-url"
+
 
 class TestEvalRepository:
     """Tests for EvalRepository class."""
@@ -438,7 +458,7 @@ class TestEvalRepository:
 
         # Save second baseline
         sample_run_result.id = "run-2"
-        second = repo.save_baseline(sample_run_result, name="v2.0")
+        repo.save_baseline(sample_run_result, name="v2.0")
 
         # First should be deactivated
         baselines = repo.list_baselines(dataset_name="test_dataset")

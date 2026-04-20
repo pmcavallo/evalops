@@ -9,10 +9,8 @@ from __future__ import annotations
 import asyncio
 import importlib
 import json
-import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -20,11 +18,14 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
+from evalops.cli import regression
+
 app = typer.Typer(
     name="evalops",
     help="Production-grade LLM evaluation and observability platform.",
     add_completion=False,
 )
+app.add_typer(regression.app, name="regression")
 
 console = Console()
 
@@ -39,9 +40,7 @@ def load_target_function(target_path: str):
         The loaded function.
     """
     if ":" not in target_path:
-        raise typer.BadParameter(
-            f"Target must be in format 'module:function', got '{target_path}'"
-        )
+        raise typer.BadParameter(f"Target must be in format 'module:function', got '{target_path}'")
 
     module_path, func_name = target_path.rsplit(":", 1)
 
@@ -51,9 +50,7 @@ def load_target_function(target_path: str):
         raise typer.BadParameter(f"Could not import module '{module_path}': {e}")
 
     if not hasattr(module, func_name):
-        raise typer.BadParameter(
-            f"Module '{module_path}' has no attribute '{func_name}'"
-        )
+        raise typer.BadParameter(f"Module '{module_path}' has no attribute '{func_name}'")
 
     return getattr(module, func_name)
 
@@ -101,24 +98,18 @@ def parse_metrics(metric_names: list[str]):
 @app.command()
 def run(
     dataset: Path = typer.Argument(..., help="Path to dataset JSON file"),
-    target: str = typer.Option(
-        ..., "--target", "-t", help="Target function as 'module:function'"
-    ),
+    target: str = typer.Option(..., "--target", "-t", help="Target function as 'module:function'"),
     metrics: list[str] = typer.Option(
         ["exact_match"],
         "--metric",
         "-m",
         help="Metrics to evaluate (can specify multiple)",
     ),
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Name for this run"),
-    database: Optional[str] = typer.Option(
-        None, "--database", "-d", help="Database URL"
-    ),
+    name: str | None = typer.Option(None, "--name", "-n", help="Name for this run"),
+    database: str | None = typer.Option(None, "--database", "-d", help="Database URL"),
     save: bool = typer.Option(True, "--save/--no-save", help="Save results to database"),
     tags: list[str] = typer.Option([], "--tag", help="Tags for the run"),
-    output: Optional[Path] = typer.Option(
-        None, "--output", "-o", help="Output results to JSON file"
-    ),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Output results to JSON file"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
 ) -> None:
     """Run an evaluation on a dataset."""
@@ -185,7 +176,7 @@ def run(
 
     # Display results
     console.print()
-    _display_run_result(result, verbose)
+    _display_run_result(result)
 
     # Save to output file if specified
     if output:
@@ -198,24 +189,21 @@ def run(
             "avg_latency_ms": result.avg_latency_ms,
             "metrics_summary": result.metrics_summary,
         }
-        output.write_text(json.dumps(output_data, indent=2))
+        output.write_text(json.dumps(output_data, indent=2), encoding="utf-8")
         console.print(f"[green]Results saved to {output}[/green]")
 
 
-def _display_run_result(result, verbose: bool = False) -> None:
+def _display_run_result(result) -> None:
     """Display run result in a formatted table."""
     # Status panel
-    status_color = "green" if result.pass_rate >= 0.8 else "yellow" if result.pass_rate >= 0.5 else "red"
     status_emoji = "[green]PASSED[/green]" if result.pass_rate >= 0.8 else "[red]FAILED[/red]"
 
-    console.print(
-        Panel(
-            f"[bold]Run ID:[/bold] {result.id}\n"
-            f"[bold]Dataset:[/bold] {result.dataset_name}\n"
-            f"[bold]Status:[/bold] {status_emoji}",
-            title="Evaluation Results",
-        )
+    panel_content = (
+        f"[bold]Run ID:[/bold] {result.id}\n"
+        f"[bold]Dataset:[/bold] {result.dataset_name}\n"
+        f"[bold]Status:[/bold] {status_emoji}"
     )
+    console.print(Panel(panel_content, title="Evaluation Results"))
 
     # Summary table
     table = Table(title="Summary")
@@ -284,7 +272,7 @@ def compare(
     console.print(f"  Loaded {len(eval_dataset)} cases")
 
     # Load variants
-    console.print(f"[bold]Loading variants...[/bold]")
+    console.print("[bold]Loading variants...[/bold]")
     try:
         func_a = load_target_function(variant_a)
         func_b = load_target_function(variant_b)
@@ -332,16 +320,16 @@ def _display_ab_result(result) -> None:
         Winner.INCONCLUSIVE: "dim",
     }
 
-    console.print(
-        Panel(
-            f"[bold]Test:[/bold] {result.name}\n"
-            f"[bold]Variant A:[/bold] {result.variant_a_name}\n"
-            f"[bold]Variant B:[/bold] {result.variant_b_name}\n"
-            f"[bold]Cases:[/bold] {result.total_cases}\n"
-            f"[bold]Winner:[/bold] [{winner_color[result.overall_winner]}]{result.overall_winner.value}[/{winner_color[result.overall_winner]}]",
-            title="A/B Test Results",
-        )
+    color = winner_color[result.overall_winner]
+    winner_val = result.overall_winner.value
+    panel_content = (
+        f"[bold]Test:[/bold] {result.name}\n"
+        f"[bold]Variant A:[/bold] {result.variant_a_name}\n"
+        f"[bold]Variant B:[/bold] {result.variant_b_name}\n"
+        f"[bold]Cases:[/bold] {result.total_cases}\n"
+        f"[bold]Winner:[/bold] [{color}]{winner_val}[/{color}]"
     )
+    console.print(Panel(panel_content, title="A/B Test Results"))
 
     # Metrics comparison table
     table = Table(title="Metric Comparison")
@@ -378,13 +366,13 @@ def _display_ab_result(result) -> None:
 
 @app.command()
 def history(
-    dataset: Optional[str] = typer.Option(None, "--dataset", "-d", help="Filter by dataset"),
+    dataset: str | None = typer.Option(None, "--dataset", "-d", help="Filter by dataset"),
     days: int = typer.Option(30, "--days", help="Number of days to show"),
     limit: int = typer.Option(20, "--limit", "-l", help="Maximum runs to show"),
-    min_pass_rate: Optional[float] = typer.Option(
-        None, "--min-pass-rate", help="Minimum pass rate filter"
+    min_pass_rate: float | None = typer.Option(
+        None, "--min-pass-rate", help="Min pass rate filter"
     ),
-    database: Optional[str] = typer.Option(None, "--database", help="Database URL"),
+    database: str | None = typer.Option(None, "--database", help="Database URL"),
 ) -> None:
     """List past evaluation runs."""
     repo = get_repository(database)
@@ -412,7 +400,12 @@ def history(
     table.add_column("Date")
 
     for run in runs:
-        pass_color = "green" if run.pass_rate >= 0.8 else "yellow" if run.pass_rate >= 0.5 else "red"
+        if run.pass_rate >= 0.8:
+            pass_color = "green"
+        elif run.pass_rate >= 0.5:
+            pass_color = "yellow"
+        else:
+            pass_color = "red"
 
         table.add_row(
             run.id[:8] + "...",
@@ -439,11 +432,11 @@ def history(
 @app.command()
 def baseline(
     action: str = typer.Argument(..., help="Action: save, load, list, delete"),
-    run_id: Optional[str] = typer.Option(None, "--run", "-r", help="Run ID for save"),
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Baseline name"),
-    dataset: Optional[str] = typer.Option(None, "--dataset", "-d", help="Dataset name"),
-    baseline_id: Optional[str] = typer.Option(None, "--id", help="Baseline ID"),
-    database: Optional[str] = typer.Option(None, "--database", help="Database URL"),
+    run_id: str | None = typer.Option(None, "--run", "-r", help="Run ID for save"),
+    name: str | None = typer.Option(None, "--name", "-n", help="Baseline name"),
+    dataset: str | None = typer.Option(None, "--dataset", "-d", help="Dataset name"),
+    baseline_id: str | None = typer.Option(None, "--id", help="Baseline ID"),
+    database: str | None = typer.Option(None, "--database", help="Database URL"),
 ) -> None:
     """Manage baselines for regression testing."""
     repo = get_repository(database)
@@ -549,13 +542,9 @@ def baseline(
 def drift(
     dataset: str = typer.Argument(..., help="Dataset name to check drift for"),
     days: int = typer.Option(7, "--days", help="Days of history to analyze"),
-    warning_threshold: float = typer.Option(
-        0.05, "--warning", "-w", help="Warning threshold (e.g., 0.05 = 5%)"
-    ),
-    critical_threshold: float = typer.Option(
-        0.10, "--critical", "-c", help="Critical threshold (e.g., 0.10 = 10%)"
-    ),
-    database: Optional[str] = typer.Option(None, "--database", help="Database URL"),
+    warning_threshold: float = typer.Option(0.05, "--warning", "-w", help="Warning threshold"),
+    critical_threshold: float = typer.Option(0.10, "--critical", "-c", help="Critical threshold"),
+    database: str | None = typer.Option(None, "--database", help="Database URL"),
     json_output: bool = typer.Option(False, "--json", help="Output as JSON"),
 ) -> None:
     """Check for quality drift against baseline."""
@@ -567,7 +556,9 @@ def drift(
     baseline = repo.get_baseline(dataset_name=dataset)
     if not baseline:
         console.print(f"[red]No baseline found for dataset: {dataset}[/red]")
-        console.print("Create a baseline first with: evalops baseline save --run RUN_ID --name NAME")
+        console.print(
+            "Create a baseline first with: evalops baseline save --run RUN_ID --name NAME"
+        )
         raise typer.Exit(1)
 
     # Get recent history
@@ -610,12 +601,13 @@ def drift(
         "unknown": "dim",
     }
 
+    color = health_color.get(report.overall_health, "white")
     console.print(
         Panel(
             f"[bold]Dataset:[/bold] {dataset}\n"
             f"[bold]Baseline:[/bold] {baseline.name}\n"
             f"[bold]Snapshots:[/bold] {report.snapshot_count}\n"
-            f"[bold]Health:[/bold] [{health_color.get(report.overall_health, 'white')}]{report.overall_health.upper()}[/{health_color.get(report.overall_health, 'white')}]\n"
+            f"[bold]Health:[/bold] [{color}]{report.overall_health.upper()}[/{color}]\n"
             f"[bold]Drift Detected:[/bold] {'Yes' if report.drift_detected else 'No'}",
             title="Drift Analysis",
         )
@@ -659,9 +651,8 @@ def drift(
                 AlertSeverity.WARNING: "yellow",
                 AlertSeverity.CRITICAL: "red",
             }
-            console.print(
-                f"  [{severity_color.get(alert.severity, 'white')}]{alert.severity.value.upper()}:[/{severity_color.get(alert.severity, 'white')}] {alert.message}"
-            )
+            color = severity_color.get(alert.severity, "white")
+            console.print(f"  [{color}]{alert.severity.value.upper()}:[/{color}] {alert.message}")
 
             if alert.suggested_actions:
                 for action in alert.suggested_actions[:2]:
@@ -684,9 +675,7 @@ def version() -> None:
 
 @app.command()
 def init(
-    database: str = typer.Option(
-        "sqlite:///evalops.db", "--database", "-d", help="Database URL"
-    ),
+    database: str = typer.Option("sqlite:///evalops.db", "--database", "-d", help="Database URL"),
 ) -> None:
     """Initialize the EvalOps database."""
     from evalops.storage import DatabaseManager
@@ -703,9 +692,7 @@ def init(
 
 @app.command()
 def health(
-    database: str = typer.Option(
-        "sqlite:///evalops.db", "--database", "-d", help="Database URL"
-    ),
+    database: str = typer.Option("sqlite:///evalops.db", "--database", "-d", help="Database URL"),
 ) -> None:
     """Check database health."""
     from evalops.storage import DatabaseManager

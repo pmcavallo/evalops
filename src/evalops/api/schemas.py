@@ -12,7 +12,6 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-
 # ============================================================================
 # Common Enums
 # ============================================================================
@@ -52,7 +51,10 @@ class RunRequest(BaseModel):
     """Request to trigger an evaluation run."""
 
     dataset_path: str = Field(..., description="Path to the dataset file (JSON/YAML)")
-    target_module: str = Field(..., description="Module path to the target function (e.g., 'myapp.llm:query')")
+    target_module: str = Field(
+        ...,
+        description="Module path to the target function (e.g., 'myapp.llm:query')",
+    )
     metrics: list[str] = Field(
         default_factory=list,
         description="List of metric names to compute (e.g., ['exact_match', 'latency'])",
@@ -203,8 +205,14 @@ class DriftCheckRequest(BaseModel):
 
     dataset_name: str = Field(..., description="Dataset to check drift for")
     days: int = Field(30, description="Number of days to analyze")
-    warning_threshold: float = Field(0.05, description="Degradation threshold for warnings (e.g., 0.05 = 5%)")
-    critical_threshold: float = Field(0.10, description="Degradation threshold for critical (e.g., 0.10 = 10%)")
+    warning_threshold: float = Field(
+        0.05,
+        description="Degradation threshold for warnings (e.g., 0.05 = 5%)",
+    )
+    critical_threshold: float = Field(
+        0.10,
+        description="Degradation threshold for critical (e.g., 0.10 = 10%)",
+    )
 
 
 class DriftResponse(BaseModel):

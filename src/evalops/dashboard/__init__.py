@@ -19,12 +19,14 @@ Note: Requires optional dashboard dependencies:
 def main():
     """Launch the Streamlit dashboard (lazy import)."""
     from evalops.dashboard.app import main as _main
+
     return _main()
 
 
 def run_dashboard():
     """Run the dashboard via CLI (lazy import)."""
     from evalops.dashboard.cli import main as _cli_main
+
     return _cli_main()
 
 

@@ -9,23 +9,34 @@ Note: Tests that require streamlit/plotly are skipped if dependencies aren't ins
 
 from __future__ import annotations
 
+import importlib.util
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 # Check for optional dependencies
-try:
-    import streamlit
-    import plotly
-    DASHBOARD_DEPS_AVAILABLE = True
-except ImportError:
-    DASHBOARD_DEPS_AVAILABLE = False
+DASHBOARD_DEPS_AVAILABLE = (
+    importlib.util.find_spec("streamlit") is not None
+    and importlib.util.find_spec("plotly") is not None
+)
 
 requires_dashboard_deps = pytest.mark.skipif(
-    not DASHBOARD_DEPS_AVAILABLE,
-    reason="Dashboard dependencies (streamlit, plotly) not installed"
+    not DASHBOARD_DEPS_AVAILABLE, reason="Dashboard dependencies (streamlit, plotly) not installed"
 )
+
+
+class MockSessionState(dict):
+    """Mock for streamlit.session_state that supports both item and attribute access."""
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(key)
+
+    def __setattr__(self, key, value):
+        self[key] = value
 
 
 @requires_dashboard_deps
@@ -34,27 +45,29 @@ class TestSessionStateInitialization:
 
     def test_init_session_state_sets_defaults(self):
         """Test that init_session_state sets default values."""
-        with patch("streamlit.session_state", {}) as mock_state:
+        mock_state = MockSessionState()
+        with patch("streamlit.session_state", mock_state):
             from evalops.dashboard.app import init_session_state
 
             init_session_state()
 
-            assert mock_state["database_url"] == "sqlite:///evalops.db"
-            assert mock_state["repository"] is None
-            assert mock_state["selected_run_id"] is None
-            assert mock_state["page"] == "Overview"
+            assert mock_state.database_url == "sqlite:///evalops_demo.db"
+            assert mock_state.repository is None
+            assert mock_state.selected_run_id is None
+            assert mock_state.page == "Overview"
 
     def test_init_session_state_preserves_existing(self):
         """Test that init_session_state doesn't overwrite existing values."""
-        with patch("streamlit.session_state", {"database_url": "custom://url"}) as mock_state:
+        mock_state = MockSessionState({"database_url": "custom://url"})
+        with patch("streamlit.session_state", mock_state):
             from evalops.dashboard.app import init_session_state
 
             init_session_state()
 
             # Should preserve existing value
-            assert mock_state["database_url"] == "custom://url"
+            assert mock_state.database_url == "custom://url"
             # Should set missing defaults
-            assert mock_state["page"] == "Overview"
+            assert mock_state.page == "Overview"
 
 
 @requires_dashboard_deps
@@ -64,21 +77,28 @@ class TestRepositoryConnection:
     def test_get_repository_creates_new(self):
         """Test that get_repository creates a new repository if none exists."""
         mock_repo = MagicMock()
+        mock_state = MockSessionState({"database_url": "sqlite:///:memory:", "repository": None})
 
-        with patch("streamlit.session_state", {"database_url": "sqlite:///:memory:", "repository": None}):
-            with patch("evalops.dashboard.app.EvalRepository", return_value=mock_repo) as MockRepo:
+        with patch("streamlit.session_state", mock_state):
+            with patch(
+                "evalops.dashboard.app.EvalRepository", return_value=mock_repo
+            ) as mock_repo_cls:
                 from evalops.dashboard.app import get_repository
 
                 result = get_repository()
 
-                MockRepo.assert_called_once_with("sqlite:///:memory:")
+                mock_repo_cls.assert_called_once_with("sqlite:///:memory:")
                 mock_repo.initialize.assert_called_once()
+                assert result is mock_repo
 
     def test_get_repository_returns_existing(self):
         """Test that get_repository returns existing repository."""
         existing_repo = MagicMock()
+        mock_state = MockSessionState(
+            {"database_url": "sqlite:///test.db", "repository": existing_repo}
+        )
 
-        with patch("streamlit.session_state", {"database_url": "sqlite:///test.db", "repository": existing_repo}):
+        with patch("streamlit.session_state", mock_state):
             from evalops.dashboard.app import get_repository
 
             result = get_repository()
@@ -88,21 +108,25 @@ class TestRepositoryConnection:
     def test_reconnect_database_success(self):
         """Test successful database reconnection."""
         mock_repo = MagicMock()
+        mock_state = MockSessionState({"database_url": "old://url", "repository": None})
 
-        with patch("streamlit.session_state", {"database_url": "old://url", "repository": None}) as mock_state:
+        with patch("streamlit.session_state", mock_state):
             with patch("evalops.dashboard.app.EvalRepository", return_value=mock_repo):
                 from evalops.dashboard.app import reconnect_database
 
                 result = reconnect_database("new://url")
 
                 assert result is True
-                assert mock_state["database_url"] == "new://url"
-                assert mock_state["repository"] is mock_repo
+                assert mock_state.database_url == "new://url"
+                assert mock_state.repository is mock_repo
 
     def test_reconnect_database_failure(self):
         """Test database reconnection failure handling."""
-        with patch("streamlit.session_state", {"database_url": "old://url", "repository": None}):
-            with patch("evalops.dashboard.app.EvalRepository", side_effect=Exception("Connection failed")):
+        mock_state = MockSessionState({"database_url": "old://url", "repository": None})
+        with patch("streamlit.session_state", mock_state):
+            with patch(
+                "evalops.dashboard.app.EvalRepository", side_effect=Exception("Connection failed")
+            ):
                 with patch("streamlit.error"):
                     from evalops.dashboard.app import reconnect_database
 
@@ -227,12 +251,14 @@ class TestOverviewPageComponents:
         repo = MagicMock()
 
         runs = []
-        for i, (dataset, pass_rate) in enumerate([
-            ("dataset_a", 0.9),
-            ("dataset_a", 0.85),
-            ("dataset_b", 0.7),
-            ("dataset_c", 0.95),
-        ]):
+        for i, (dataset, pass_rate) in enumerate(
+            [
+                ("dataset_a", 0.9),
+                ("dataset_a", 0.85),
+                ("dataset_b", 0.7),
+                ("dataset_c", 0.95),
+            ]
+        ):
             run = MagicMock()
             run.id = f"run-{i}"
             run.name = f"run_{i}"
@@ -449,6 +475,7 @@ class TestDashboardCLI:
     def test_cli_builds_correct_command(self):
         """Test that CLI builds the correct streamlit command."""
         from pathlib import Path
+
         from evalops.dashboard import cli
 
         app_path = Path(cli.__file__).parent / "app.py"
