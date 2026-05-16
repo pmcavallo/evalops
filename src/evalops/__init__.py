@@ -36,7 +36,7 @@ from evalops.core.metrics import (
     TokenCost,
     TokenUsage,
 )
-from evalops.core.runner import EvalResult, EvalRunResult, EvalRunner
+from evalops.core.runner import EvalResult, EvalRunner, EvalRunResult
 
 __version__ = "0.1.0"
 

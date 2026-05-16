@@ -67,8 +67,10 @@ class LLMJudge(Metric):
     DEFAULT_CRITERIA = """
 Evaluate the response on the following criteria, scoring each from 0-10:
 
-1. **Accuracy** (0-10): Is the information factually correct? Does it match the reference answer if provided?
-2. **Completeness** (0-10): Does the response fully address the question? Are there any missing key points?
+1. **Accuracy** (0-10): Is the information factually correct?
+   Does it match the reference answer if provided?
+2. **Completeness** (0-10): Does the response fully address the question?
+   Are there any missing key points?
 3. **Clarity** (0-10): Is the response well-written, clear, and easy to understand?
 
 Provide your scores and brief reasoning for each criterion.
@@ -133,7 +135,8 @@ Provide your scores and brief reasoning for each criterion.
             '- "reasoning": brief explanation of your evaluation',
             "",
             "Example:",
-            '{"overall": 8.5, "criteria_scores": {"accuracy": 9, "completeness": 8, "clarity": 8.5}, "reasoning": "The response is accurate and clear..."}',
+            '{"overall": 8.5, "criteria_scores": {"accuracy": 9, "completeness": 8, '
+            '"clarity": 8.5}, "reasoning": "The response is accurate and clear..."}',
             "",
             "Respond ONLY with the JSON object, no other text.",
         ])

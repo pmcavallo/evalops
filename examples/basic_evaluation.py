@@ -17,7 +17,7 @@ def simple_qa_bot(question: str) -> str:
         "who wrote hamlet": "William Shakespeare",
         "what is python": "Python is a programming language",
     }
-    
+
     key = question.lower().strip("?")
     return responses.get(key, "I don't know")
 
@@ -31,13 +31,13 @@ def main():
         {"input": "What is Python?", "expected": "A programming language"},
         {"input": "What is the meaning of life?", "expected": "42"},  # Will fail
     ])
-    
+
     # Configure metrics
     metrics = [
         Accuracy(threshold=0.8),  # 80% accuracy required
         SemanticSimilarity(threshold=0.7),  # 70% semantic match
     ]
-    
+
     # Run evaluation
     runner = EvalRunner()
     result = runner.run(
@@ -45,10 +45,10 @@ def main():
         target_fn=simple_qa_bot,
         metrics=metrics,
     )
-    
+
     # Print results
     print(f"\n{'='*50}")
-    print(f"EvalOps Results")
+    print("EvalOps Results")
     print(f"{'='*50}")
     print(f"Total Cases: {result.total_cases}")
     print(f"Passed: {result.passed_cases}")
@@ -56,7 +56,7 @@ def main():
     print(f"Pass Rate: {result.pass_rate:.1%}")
     print(f"Avg Latency: {result.avg_latency_ms:.1f}ms")
     print(f"{'='*50}")
-    
+
     # Show individual results
     print("\nCase Results:")
     for case in result.cases:

@@ -23,7 +23,7 @@ from evalops.core.metrics import (
     TokenCost,
     TokenUsage,
 )
-from evalops.core.runner import EvalResult, EvalRunResult, EvalRunner
+from evalops.core.runner import EvalResult, EvalRunner, EvalRunResult
 
 __all__ = [
     # Dataset

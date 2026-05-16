@@ -404,12 +404,15 @@ class MetricsCollector:
         # Tokens
         lines.append("# HELP evalops_tokens_total Total tokens used")
         lines.append("# TYPE evalops_tokens_total counter")
-        lines.append(f'evalops_tokens_total{{type="input"}} {self.token_usage.input_tokens.value()}')
-        lines.append(f'evalops_tokens_total{{type="output"}} {self.token_usage.output_tokens.value()}')
+        in_val = self.token_usage.input_tokens.value()
+        out_val = self.token_usage.output_tokens.value()
+        lines.append(f'evalops_tokens_total{{type="input"}} {in_val}')
+        lines.append(f'evalops_tokens_total{{type="output"}} {out_val}')
 
         # Per-metric pass rates
         for name in self.metric_totals:
-            lines.append(f'evalops_metric_pass_rate{{metric="{name}"}} {self.metric_pass_rate(name):.4f}')
+            m_rate = self.metric_pass_rate(name)
+            lines.append(f'evalops_metric_pass_rate{{metric="{name}"}} {m_rate:.4f}')
 
         return "\n".join(lines)
 

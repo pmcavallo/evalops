@@ -8,9 +8,8 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
-from uuid import uuid4
 
-from sqlalchemy import and_, desc, func, select
+from sqlalchemy import and_, desc, func, not_, select
 from sqlalchemy.orm import Session
 
 from evalops.storage.models import (
@@ -18,13 +17,12 @@ from evalops.storage.models import (
     BaselineRecord,
     EvalCaseRecord,
     EvalRunRecord,
-    SchemaVersion,
     get_engine,
     get_session_factory,
 )
 
 if TYPE_CHECKING:
-    from evalops.core.runner import EvalResult, EvalRunResult
+    from evalops.core.runner import EvalRunResult
 
 
 class EvalRepository:
@@ -92,7 +90,7 @@ class EvalRepository:
 
     def save_run(
         self,
-        run_result: "EvalRunResult",
+        run_result: EvalRunResult,
         name: str | None = None,
         tags: list[str] | None = None,
         metadata: dict[str, Any] | None = None,
@@ -381,7 +379,7 @@ class EvalRepository:
 
     def save_baseline(
         self,
-        run_result: "EvalRunResult",
+        run_result: EvalRunResult,
         name: str,
         deactivate_existing: bool = True,
         metadata: dict[str, Any] | None = None,
@@ -405,7 +403,7 @@ class EvalRepository:
                     .where(
                         and_(
                             BaselineRecord.dataset_name == run_result.dataset_name,
-                            BaselineRecord.is_active == True,
+                            BaselineRecord.is_active,
                         )
                     )
                 )
@@ -451,7 +449,7 @@ class EvalRepository:
                 update_stmt = select(BaselineRecord).where(
                     and_(
                         BaselineRecord.dataset_name == dataset_name,
-                        BaselineRecord.is_active == True,
+                        BaselineRecord.is_active,
                     )
                 )
                 for baseline in session.scalars(update_stmt):
@@ -496,7 +494,7 @@ class EvalRepository:
             if dataset_name is not None:
                 conditions = [BaselineRecord.dataset_name == dataset_name]
                 if active_only:
-                    conditions.append(BaselineRecord.is_active == True)
+                    conditions.append(BaselineRecord.is_active)
 
                 stmt = (
                     select(BaselineRecord)
@@ -531,7 +529,7 @@ class EvalRepository:
             if dataset_name is not None:
                 conditions.append(BaselineRecord.dataset_name == dataset_name)
             if active_only:
-                conditions.append(BaselineRecord.is_active == True)
+                conditions.append(BaselineRecord.is_active)
 
             if conditions:
                 stmt = stmt.where(and_(*conditions))
@@ -585,9 +583,9 @@ class EvalRepository:
             stmt = select(EvalCaseRecord).where(EvalCaseRecord.run_id == run_id)
 
             if passed_only:
-                stmt = stmt.where(EvalCaseRecord.metrics_passed == True)
+                stmt = stmt.where(EvalCaseRecord.metrics_passed)
             elif failed_only:
-                stmt = stmt.where(EvalCaseRecord.metrics_passed == False)
+                stmt = stmt.where(not_(EvalCaseRecord.metrics_passed))
 
             stmt = stmt.order_by(EvalCaseRecord.created_at).limit(limit)
             return list(session.scalars(stmt))
@@ -614,7 +612,7 @@ class EvalRepository:
             stmt = (
                 select(EvalCaseRecord)
                 .join(EvalRunRecord)
-                .where(EvalCaseRecord.metrics_passed == False)
+                .where(not_(EvalCaseRecord.metrics_passed))
             )
 
             conditions = []

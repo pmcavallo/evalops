@@ -1,0 +1,9 @@
+{
+  "baseline_id": "initial_baseline",
+  "dataset": "Regression Test Dataset",
+  "metrics": {
+    "exact_match": 1.0,
+    "semantic_similarity": 1.0,
+    "overall_pass_rate": 1.0
+  }
+}

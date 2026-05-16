@@ -6,7 +6,6 @@ individual case results, and baselines for regression testing.
 
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
@@ -93,7 +92,7 @@ class EvalRunRecord(Base):
     )
 
     # Relationships
-    cases: Mapped[list["EvalCaseRecord"]] = relationship(
+    cases: Mapped[list[EvalCaseRecord]] = relationship(
         "EvalCaseRecord",
         back_populates="run",
         cascade="all, delete-orphan",
@@ -134,7 +133,7 @@ class EvalRunRecord(Base):
         name: str | None = None,
         tags: list[str] | None = None,
         metadata: dict[str, Any] | None = None,
-    ) -> "EvalRunRecord":
+    ) -> EvalRunRecord:
         """Create a record from an EvalRunResult.
 
         Args:
@@ -213,7 +212,7 @@ class EvalCaseRecord(Base):
     )
 
     # Relationships
-    run: Mapped["EvalRunRecord"] = relationship("EvalRunRecord", back_populates="cases")
+    run: Mapped[EvalRunRecord] = relationship("EvalRunRecord", back_populates="cases")
 
     def to_dict(self) -> dict[str, Any]:
         """Convert record to dictionary."""
@@ -235,7 +234,7 @@ class EvalCaseRecord(Base):
         }
 
     @classmethod
-    def from_eval_result(cls, eval_result: Any, run_id: str) -> "EvalCaseRecord":
+    def from_eval_result(cls, eval_result: Any, run_id: str) -> EvalCaseRecord:
         """Create a record from an EvalResult.
 
         Args:
@@ -332,7 +331,7 @@ class BaselineRecord(Base):
         name: str,
         is_active: bool = True,
         metadata: dict[str, Any] | None = None,
-    ) -> "BaselineRecord":
+    ) -> BaselineRecord:
         """Create a baseline from an EvalRunResult.
 
         Args:

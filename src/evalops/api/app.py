@@ -22,9 +22,7 @@ Example:
 
 from __future__ import annotations
 
-import asyncio
 import importlib
-import time
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -35,6 +33,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from evalops import __version__
 from evalops.api.schemas import (
+    AlertSeverity,
     BaselineListResponse,
     BaselineRequest,
     BaselineResponse,
@@ -59,7 +58,6 @@ from evalops.api.schemas import (
     RunResponse,
     RunStats,
     RunSummary,
-    AlertSeverity,
 )
 from evalops.storage import DatabaseManager, EvalRepository
 
@@ -164,15 +162,40 @@ def load_target(target_path: str) -> Any:
         The loaded callable.
 
     Raises:
-        HTTPException: If the target cannot be loaded.
+        HTTPException: If the target cannot be loaded or is unsafe.
     """
+    # Security: Allowlist of permitted top-level modules
+    # This ensures that only trusted code can be loaded as an evaluation target.
+    # We include 'evalops' (internal targets) and 'demo' (for testing).
+    # Real applications should register their own packages here.
+    allowed_packages = {"evalops", "demo", "json", "math", "re"}
+
     try:
         if ":" not in target_path:
             raise ValueError("Target must be in format 'module.path:function_name'")
 
         module_path, func_name = target_path.rsplit(":", 1)
+
+        # Security: Allowlist check for the module
+        root_package = module_path.split(".")[0]
+        if root_package not in allowed_packages:
+            raise ValueError(
+                f"Loading from package '{root_package}' is restricted for security. "
+                "Only specified allowlisted packages are permitted."
+            )
+
+        # Security: Prevent access to private or dunder attributes
+        # to avoid internal state manipulation
+        if func_name.startswith("_"):
+            raise ValueError("Accessing private or dunder attributes is restricted.")
+
         module = importlib.import_module(module_path)
         target = getattr(module, func_name)
+
+        # Security: Explicitly verify the target is a callable to prevent loading data as code
+        if not callable(target):
+            raise ValueError(f"Target '{target_path}' is not a callable.")
+
         return target
     except Exception as e:
         raise HTTPException(
